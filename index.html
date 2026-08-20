@@ -25,28 +25,16 @@
     color:var(--paper);
     font-family:'Inter',sans-serif;
     line-height:1.6;
-    overflow-x:hidden;
   }
   h1,h2,h3{font-family:'Space Grotesk',sans-serif; font-weight:600; letter-spacing:-0.01em;}
   .mono{font-family:'IBM Plex Mono',monospace;}
   a{color:inherit;}
   .wrap{max-width:1040px; margin:0 auto; padding:0 24px;}
 
-  ::selection{background:var(--amber); color:#1A1200;}
-
-  /* Ambient backdrop glow, fixed behind content */
-  .ambient{
-    position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:
-      radial-gradient(600px 400px at 15% 0%, rgba(232,163,61,.10), transparent 60%),
-      radial-gradient(500px 380px at 90% 20%, rgba(63,167,150,.08), transparent 60%);
-  }
-
   /* Tab-bar nav — signature element, echoes a browser tab strip */
   .tabbar{
     position:sticky; top:0; z-index:50;
-    background:rgba(28,32,48,.86);
-    backdrop-filter:blur(10px);
+    background:var(--surface);
     border-bottom:1px solid var(--line);
   }
   .tabbar-inner{
@@ -55,29 +43,22 @@
     overflow-x:auto;
   }
   .tab-dot{display:flex; gap:6px; padding:14px 16px 14px 0; flex-shrink:0;}
-  .tab-dot span{width:9px; height:9px; border-radius:50%; background:var(--line); transition:transform .2s ease;}
+  .tab-dot span{width:9px; height:9px; border-radius:50%; background:var(--line);}
   .tab-dot span:nth-child(1){background:#E8756C;}
   .tab-dot span:nth-child(2){background:#E8C34C;}
   .tab-dot span:nth-child(3){background:#5FBF8E;}
-  .tabbar:hover .tab-dot span{transform:scale(1.15);}
   .tab{
-    position:relative;
     padding:14px 18px;
     font-family:'IBM Plex Mono',monospace;
     font-size:13px;
     color:var(--muted);
     text-decoration:none;
+    border-bottom:2px solid transparent;
     white-space:nowrap;
-    transition:color .15s ease;
-  }
-  .tab::after{
-    content:''; position:absolute; left:14px; right:14px; bottom:0; height:2px;
-    background:var(--amber); transform:scaleX(0); transform-origin:left;
-    transition:transform .25s ease;
+    transition:color .15s ease, border-color .15s ease;
   }
   .tab:hover{color:var(--paper);}
-  .tab.active{color:var(--amber);}
-  .tab.active::after{transform:scaleX(1);}
+  .tab.active{color:var(--amber); border-bottom-color:var(--amber);}
 
   section{padding:88px 0;}
   section.tight{padding:64px 0;}
@@ -87,41 +68,19 @@
     color:var(--amber); margin-bottom:14px;
   }
 
-  /* Reveal-on-scroll */
-  .reveal{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease;}
-  .reveal.in{opacity:1; transform:translateY(0);}
-  .stagger.in > *{animation:none;}
-  @media (prefers-reduced-motion: reduce){
-    .reveal, .reveal.in{opacity:1; transform:none; transition:none;}
-    html{scroll-behavior:auto;}
-  }
-
   /* Hero */
-  .hero{padding:120px 0 96px; position:relative;}
-  .hero .eyebrow{display:flex; align-items:center; gap:8px;}
-  .hero .eyebrow .blink{
-    width:6px; height:6px; border-radius:50%; background:var(--teal);
-    animation:blink 1.8s ease-in-out infinite;
-  }
-  @keyframes blink{0%,100%{opacity:1;} 50%{opacity:.25;}}
+  .hero{padding:110px 0 90px;}
   .hero h1{font-size:clamp(34px,5vw,54px); line-height:1.08; max-width:680px;}
-  .hero h1 .cursor{
-    display:inline-block; width:3px; height:.9em; background:var(--amber);
-    margin-left:4px; vertical-align:-2px; animation:caret 1s step-end infinite;
-  }
-  @keyframes caret{0%,49%{opacity:1;} 50%,100%{opacity:0;}}
   .hero p.lede{color:var(--muted); font-size:18px; max-width:520px; margin-top:20px;}
   .hero-cta{display:flex; gap:14px; margin-top:32px; flex-wrap:wrap;}
   .btn{
     display:inline-block; padding:12px 22px; border-radius:8px;
     font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500;
-    text-decoration:none; transition:opacity .15s ease, transform .15s ease;
+    text-decoration:none; transition:opacity .15s ease;
   }
-  .btn:hover{opacity:.85; transform:translateY(-1px);}
-  .btn:active{transform:translateY(0);}
+  .btn:hover{opacity:.85;}
   .btn-primary{background:var(--amber); color:#1A1200;}
   .btn-ghost{background:transparent; border:1px solid var(--line); color:var(--paper);}
-  .btn-ghost:hover{border-color:var(--amber);}
 
   /* Products */
   .product-grid{
@@ -131,12 +90,6 @@
   .card{
     background:var(--surface); border:1px solid var(--line); border-radius:10px;
     padding:22px;
-    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
-  }
-  .card:hover{
-    transform:translateY(-3px);
-    border-color:var(--teal);
-    box-shadow:0 12px 28px -14px rgba(63,167,150,.35);
   }
   .card-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
   .card h3{font-size:17px;}
@@ -156,13 +109,8 @@
   .price-card{
     background:var(--surface); border:1px solid var(--line); border-radius:10px;
     padding:26px; display:flex; flex-direction:column;
-    transition:transform .2s ease, border-color .2s ease;
   }
-  .price-card:hover{transform:translateY(-3px);}
-  .price-card.featured{
-    border-color:var(--amber);
-    box-shadow:0 0 0 1px rgba(232,163,61,.15), 0 16px 32px -16px rgba(232,163,61,.3);
-  }
+  .price-card.featured{border-color:var(--amber);}
   .price-tier{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.06em;}
   .price-amount{font-family:'Space Grotesk',sans-serif; font-size:32px; margin:10px 0 4px;}
   .price-amount span{font-size:14px; color:var(--muted); font-family:'Inter',sans-serif;}
@@ -198,32 +146,26 @@
     display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px;
     color:var(--muted); font-size:13px; font-family:'IBM Plex Mono',monospace;
   }
-
-  a:focus-visible, .tab:focus-visible, .btn:focus-visible{
-    outline:2px solid var(--amber); outline-offset:2px; border-radius:4px;
-  }
 </style>
 </head>
 <body>
 
-<div class="ambient"></div>
-
 <nav class="tabbar">
   <div class="tabbar-inner">
     <div class="tab-dot"><span></span><span></span><span></span></div>
-    <a class="tab active" data-tab="home" href="#home">home</a>
-    <a class="tab" data-tab="products" href="#products">products</a>
-    <a class="tab" data-tab="pricing" href="#pricing">pricing</a>
-    <a class="tab" data-tab="refunds" href="#refunds">refunds</a>
-    <a class="tab" data-tab="privacy" href="#privacy">privacy</a>
-    <a class="tab" data-tab="terms" href="#terms">terms</a>
-    <a class="tab" data-tab="contact" href="#contact">contact</a>
+    <a class="tab active" href="#home">home</a>
+    <a class="tab" href="#products">products</a>
+    <a class="tab" href="#pricing">pricing</a>
+    <a class="tab" href="#refunds">refunds</a>
+    <a class="tab" href="#privacy">privacy</a>
+    <a class="tab" href="#terms">terms</a>
+    <a class="tab" href="#contact">contact</a>
   </div>
 </nav>
 
 <header class="hero wrap" id="home">
-  <div class="eyebrow"><span class="blink"></span>// Fenwick Labs</div>
-  <h1>Small, sharp browser extensions built by one developer.<span class="cursor"></span></h1>
+  <div class="eyebrow">// Fenwick Labs</div>
+  <h1>Small, sharp browser extensions built by one developer.</h1>
   <p class="lede">Fenwick Labs makes focused Chrome extensions for productivity, media, and everyday browser tasks — no bloat, no dark patterns, built and maintained by a single indie developer.</p>
   <div class="hero-cta">
     <a class="btn btn-primary" href="#products">See the extensions</a>
@@ -231,7 +173,7 @@
   </div>
 </header>
 
-<section id="products" class="wrap tight reveal">
+<section id="products" class="wrap tight">
   <div class="eyebrow">01 · Live products</div>
   <h2>What's shipping right now</h2>
   <div class="product-grid">
@@ -241,8 +183,8 @@
       <div class="rating">★ 5.0</div>
     </div>
     <div class="card">
-      <div class="card-top"><h3>HirePilot AI</h3><span class="status live">Live</span></div>
-      <p>Autofills applications, tailors your resume, and tracks every submission across ATS platforms.</p>
+      <div class="card-top"><h3>Screen Time Tracker</h3><span class="status live">Live</span></div>
+      <p>Tracks time spent per site and surfaces a daily/weekly breakdown, no account required.</p>
       <div class="rating">★ 5.0</div>
     </div>
     <div class="card">
@@ -251,8 +193,8 @@
       <div class="rating">★ 5.0</div>
     </div>
     <div class="card">
-      <div class="card-top"><h3>Claude Enhancer</h3><span class="status live">Live</span></div>
-      <p>Adds quality-of-life shortcuts and layout tweaks on top of the Claude.ai web interface.</p>
+      <div class="card-top"><h3>Chat Assistant Enhancer</h3><span class="status live">Live</span></div>
+      <p>Adds quality-of-life shortcuts and layout tweaks for popular AI chat websites.</p>
       <div class="rating">★ 5.0</div>
     </div>
     <div class="card">
@@ -260,15 +202,10 @@
       <p>Fine-grained playback speed control for any HTML5 video, with per-site memory.</p>
       <div class="rating">★ 5.0</div>
     </div>
-    <div class="card">
-      <div class="card-top"><h3>Tic Tac Toe — Neon Arena</h3><span class="status live">Live</span></div>
-      <p>A lightweight neon-styled tic-tac-toe game that lives in your new-tab page.</p>
-      <div class="rating">★ 5.0</div>
-    </div>
   </div>
 </section>
 
-<section id="pricing" class="wrap tight reveal">
+<section id="pricing" class="wrap tight">
   <div class="eyebrow">02 · Pricing</div>
   <h2>Simple plans, per extension</h2>
   <div class="price-grid">
@@ -310,11 +247,11 @@
     </div>
   </div>
   <div class="trial-note">
-    <strong>Free trial &amp; billing disclosure.</strong> Monthly and yearly Pro plans start with a 15-day free trial. Your card is charged automatically at the plan price when the trial ends, unless you cancel before it does. You can cancel anytime from your account settings or by emailing <span class="placeholder">mangesh.lokade.dev@gmail.com</span> — cancelling stops future charges and does not retroactively refund the current period. Exact plan price, billing frequency, and next billing date are shown again at checkout before you enter payment details.
+    <strong>Free trial &amp; billing disclosure.</strong> Monthly and yearly Pro plans start with a 15-day free trial. Your card is charged automatically at the plan price when the trial ends, unless you cancel before it does. You can cancel anytime from your account settings or by emailing <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a> — cancelling stops future charges and does not retroactively refund the current period. Exact plan price, billing frequency, and next billing date are shown again at checkout before you enter payment details.
   </div>
 </section>
 
-<section id="refunds" class="wrap policy policy-block reveal">
+<section id="refunds" class="wrap policy policy-block">
   <div class="eyebrow">03 · Policy</div>
   <h2>Refund &amp; Cancellation Policy</h2>
   <p>Last updated: August 20, 2026</p>
@@ -323,7 +260,7 @@
   <p>All Fenwick Labs products are digital software delivered instantly on purchase. Because of this, we don't offer refunds simply for change of mind once a paid feature has been unlocked or used.</p>
 
   <h3>Money-back window</h3>
-  <p>If a paid upgrade doesn't work as described, or you were charged in error, contact us within 14 days of the charge at <span class="placeholder">mangesh.lokade.dev@gmail.com</span> and we'll review it. Approved refunds are issued to the original payment method within 5–10 business days.</p>
+  <p>If a paid upgrade doesn't work as described, or you were charged in error, contact us within 14 days of the charge at <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a> and we'll review it. Approved refunds are issued to the original payment method within 5–10 business days.</p>
 
   <h3>Free trial charges</h3>
   <p>If you forgot to cancel a free trial and were charged, contact us within 7 days of the charge and we'll refund that charge in full — this applies once per customer per extension.</p>
@@ -333,12 +270,12 @@
 
   <h3>How to request a refund</h3>
   <ul>
-    <li>Email <span class="placeholder">mangesh.lokade.dev@gmail.com</span> with the extension name and the email or order ID used at checkout.</li>
+    <li>Email <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a> with the extension name and the email or order ID used at checkout.</li>
     <li>We respond within 2 business days.</li>
   </ul>
 </section>
 
-<section id="privacy" class="wrap policy policy-block reveal">
+<section id="privacy" class="wrap policy policy-block">
   <div class="eyebrow">04 · Policy</div>
   <h2>Privacy Policy</h2>
   <p>Last updated: August 20, 2026</p>
@@ -360,22 +297,22 @@
   <p>Account data is kept while your account is active and deleted within 30 days of account deletion, unless we're required to retain records for tax or legal purposes.</p>
 
   <h3>Your rights</h3>
-  <p>You can request access to, correction of, or deletion of your data at any time by emailing <span class="placeholder">mangesh.lokade.dev@gmail.com</span>.</p>
+  <p>You can request access to, correction of, or deletion of your data at any time by emailing <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a>.</p>
 
   <h3>Contact</h3>
-  <p>Privacy questions: <span class="placeholder">mangesh.lokade.dev@gmail.com</span></p>
+  <p>Privacy questions: <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a></p>
 </section>
 
-<section id="terms" class="wrap policy policy-block reveal">
+<section id="terms" class="wrap policy policy-block">
   <div class="eyebrow">05 · Policy</div>
   <h2>Terms of Service</h2>
   <p>Last updated: August 20, 2026</p>
 
   <h3>The service</h3>
-  <p>Fenwick Labs provides browser extensions ("Products") on a freemium basis, with optional paid Pro upgrades billed monthly, yearly, or as a one-time lifetime purchase, as described on the Pricing page.</p>
+  <p>Fenwick Labs, operated by Mangesh Madhavrao Lokade (sole proprietor, based in Maharashtra, India), provides browser extensions ("Products") on a freemium basis, with optional paid Pro upgrades billed monthly, yearly, or as a one-time lifetime purchase, as described on the Pricing page.</p>
 
   <h3>Payments</h3>
-  <p>Payments are processed by a third-party payment provider. By purchasing a Pro plan you agree to that provider's terms in addition to ours. Prices are shown in USD unless stated otherwise.</p>
+  <p>Payments are processed by our third-party payment provider, Paddle.com. Paddle acts as our Merchant of Record and is the seller of record for all Pro plan purchases. By purchasing a Pro plan you agree to Paddle's Buyer Terms in addition to ours. Prices are shown in USD unless stated otherwise.</p>
 
   <h3>Free trials</h3>
   <p>Where offered, a free trial converts automatically into a paid subscription at the end of the trial period unless cancelled beforehand, as described in the Refund &amp; Cancellation Policy.</p>
@@ -393,14 +330,14 @@
   <p>Maharashtra, India</p>
 </section>
 
-<section id="contact" class="wrap tight reveal">
+<section id="contact" class="wrap tight">
   <div class="eyebrow">06 · Contact</div>
   <h2>Get in touch</h2>
   <div class="contact-grid">
     <div>
       <div class="contact-item">
         <div class="label">Support email</div>
-        <div class="value">mangesh.lokade.dev@gmail.com</div>
+        <div class="value"><a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a></div>
       </div>
       <div class="contact-item">
         <div class="label">Response time</div>
@@ -424,45 +361,6 @@
   <span>© 2026 Fenwick Labs. All rights reserved.</span>
   <span>Built &amp; maintained by one developer.</span>
 </footer>
-
-<script>
-  // Scroll-triggered reveal
-  const revealEls = document.querySelectorAll('.reveal');
-  if ('IntersectionObserver' in window){
-    const io = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting){
-          entry.target.classList.add('in');
-          io.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    revealEls.forEach(el => io.observe(el));
-  } else {
-    revealEls.forEach(el => el.classList.add('in'));
-  }
-
-  // Active tab tracks scroll position, like a real browser tab strip
-  const tabs = Array.from(document.querySelectorAll('.tab'));
-  const sections = tabs
-    .map(tab => document.getElementById(tab.dataset.tab))
-    .filter(Boolean);
-
-  function setActiveTab(id){
-    tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === id));
-  }
-
-  if ('IntersectionObserver' in window){
-    const navIO = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting){
-          setActiveTab(entry.target.id);
-        }
-      });
-    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
-    sections.forEach(sec => navIO.observe(sec));
-  }
-</script>
 
 </body>
 </html>
