@@ -1,0 +1,120 @@
+{
+  "customers": {
+    "ctm_test_123": {
+      "customer_id": "ctm_test_123",
+      "email": "tester@example.com",
+      "name": "Test User",
+      "created_at": "2026-08-24T10:48:23.719Z",
+      "updated_at": "2026-08-24T10:48:23.719Z"
+    },
+    "ctm_01m0snstn10rapfrfs61802gt7": {
+      "customer_id": "ctm_01m0snstn10rapfrfs61802gt7",
+      "email": "lokademangesh123@gmail.com",
+      "name": "Mangesh Lokade",
+      "created_at": "2026-08-24T11:04:38.844Z",
+      "updated_at": "2026-08-24T11:04:38.844Z"
+    },
+    "ctm_live_test_01": {
+      "customer_id": "ctm_live_test_01",
+      "email": "customer@live.com",
+      "name": "Live Customer",
+      "created_at": "2026-08-24T12:00:54.592Z",
+      "updated_at": "2026-08-24T12:00:54.592Z"
+    }
+  },
+  "subscriptions": {
+    "sub_test_123": {
+      "subscription_id": "sub_test_123",
+      "customer_id": "ctm_test_123",
+      "status": "canceled",
+      "price_id": "pri_01m0fh5q767z9g97r0tteajsdh",
+      "product_id": "pro_01m0fgwqrgc346cw6h92cvgnfr",
+      "scheduled_change_action": null,
+      "scheduled_change_at": null,
+      "created_at": "2026-08-24T10:48:23.668Z",
+      "updated_at": "2026-08-24T10:48:23.708Z"
+    },
+    "sub_01m0snvmsm7b6p8xktm2e97fea": {
+      "subscription_id": "sub_01m0snvmsm7b6p8xktm2e97fea",
+      "customer_id": "ctm_01m0snstn10rapfrfs61802gt7",
+      "status": "canceled",
+      "price_id": "pri_01m0fh5q767z9g97r0tteajsdh",
+      "product_id": "pro_01m0fgwqrgc346cw6h92cvgnfr",
+      "scheduled_change_action": null,
+      "scheduled_change_at": null,
+      "management_urls": {
+        "overview": "https://sandbox-customer-portal.paddle.com/cpl_01m0fgfctscs7p93p82wchqd4m?action=overview&token=pga_eyJhbGciOiJFZERTQSIsImtpZCI6Imp3a18wMWhkazBuOHF3OG55NTJ5cGNocGNhazA1ayIsInR5cCI6IkpXVCJ9.eyJpZCI6InBnYV8wMW0wc3BhNTJyMzFqNmU1Z3Q5em1xYnQ2YiIsInNlbGxlci1pZCI6IjEwNDg1MyIsInR5cGUiOiJzdGFuZGFyZCIsInZlcnNpb24iOiIxIiwidXNhZ2UiOiJjdXN0b21lci1wb3J0YWwtc2Vzc2lvbiIsInNjb3BlIjoiY3VzdG9tZXIuYWRqdXN0bWVudC5yZWFkIGN1c3RvbWVyLmNoZWNrb3V0LmNyZWF0ZSBjdXN0b21lci5jaGVja291dC5yZWFkIGN1c3RvbWVyLnJlYWQgY3VzdG9tZXIuY3VzdG9tZXIudXBkYXRlIGN1c3RvbWVyLmN1c3RvbWVyLWFkZHJlc3MucmVhZCBjdXN0b21lci5jdXN0b21lci1hZGRyZXNzLnVwZGF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy5yZWFkIGN1c3RvbWVyLmN1c3RvbWVyLWJ1c2luZXNzLmNyZWF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy51cGRhdGUgY3VzdG9tZXIuY3VzdG9tZXItcGF5bWVudC1tZXRob2QucmVhZCBjdXN0b21lci5jdXN0b21lci1wYXltZW50LW1ldGhvZC5kZWxldGUgY3VzdG9tZXIuaW52b2ljZS5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jYW5jZWwuY3JlYXRlIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jb25zZW50LXJlcXVpcmVtZW50LWdyYW50LmNyZWF0ZSBjdXN0b21lci5zdWJzY3JpcHRpb24tY29uc2VudC1yZXF1aXJlbWVudC5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi51cGRhdGUgY3VzdG9tZXIudHJhbnNhY3Rpb24uY3JlYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLnJlYWQgY3VzdG9tZXIudHJhbnNhY3Rpb24udXBkYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLm9yaWdpbi5yZWFkIiwiaXNzIjoiZ3Vlc3RhY2Nlc3Mtc2VydmljZSIsInN1YiI6ImN0bV8wMW0wc25zdG4xMHJhcGZyZnM2MTgwMmd0NyIsImV4cCI6MTc4NzY1NTA1NywiaWF0IjoxNzg3NTY4NjU3fQ.8nuIn8pIXLlaZiTGwowIqT-IjLwhMybE7PBTflFr9r2jpEme7iihbsOrL21H1fO4mBCRU3jrKy_lRqnRWhznBg",
+        "update_payment_method": "https://sandbox-customer-portal.paddle.com/cpl_01m0fgfctscs7p93p82wchqd4m?action=update_subscription_payment_method&subscription_id=sub_01m0snvmsm7b6p8xktm2e97fea&token=pga_eyJhbGciOiJFZERTQSIsImtpZCI6Imp3a18wMWhkazBuOHF3OG55NTJ5cGNocGNhazA1ayIsInR5cCI6IkpXVCJ9.eyJpZCI6InBnYV8wMW0wc3BhNTJyMzFqNmU1Z3Q5em1xYnQ2YiIsInNlbGxlci1pZCI6IjEwNDg1MyIsInR5cGUiOiJzdGFuZGFyZCIsInZlcnNpb24iOiIxIiwidXNhZ2UiOiJjdXN0b21lci1wb3J0YWwtc2Vzc2lvbiIsInNjb3BlIjoiY3VzdG9tZXIuYWRqdXN0bWVudC5yZWFkIGN1c3RvbWVyLmNoZWNrb3V0LmNyZWF0ZSBjdXN0b21lci5jaGVja291dC5yZWFkIGN1c3RvbWVyLmN1c3RvbWVyLnJlYWQgY3VzdG9tZXIuY3VzdG9tZXIudXBkYXRlIGN1c3RvbWVyLmN1c3RvbWVyLWFkZHJlc3MucmVhZCBjdXN0b21lci5jdXN0b21lci1hZGRyZXNzLnVwZGF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy5yZWFkIGN1c3RvbWVyLmN1c3RvbWVyLWJ1c2luZXNzLmNyZWF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy51cGRhdGUgY3VzdG9tZXIuY3VzdG9tZXItcGF5bWVudC1tZXRob2QucmVhZCBjdXN0b21lci5jdXN0b21lci1wYXltZW50LW1ldGhvZC5kZWxldGUgY3VzdG9tZXIuaW52b2ljZS5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jYW5jZWwuY3JlYXRlIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jb25zZW50LXJlcXVpcmVtZW50LWdyYW50LmNyZWF0ZSBjdXN0b21lci5zdWJzY3JpcHRpb24tY29uc2VudC1yZXF1aXJlbWVudC5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi51cGRhdGUgY3VzdG9tZXIudHJhbnNhY3Rpb24uY3JlYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLnJlYWQgY3VzdG9tZXIudHJhbnNhY3Rpb24udXBkYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLm9yaWdpbi5yZWFkIiwiaXNzIjoiZ3Vlc3RhY2Nlc3Mtc2VydmljZSIsInN1YiI6ImN0bV8wMW0wc25zdG4xMHJhcGZyZnM2MTgwMmd0NyIsImV4cCI6MTc4NzY1NTA1NywiaWF0IjoxNzg3NTY4NjU3fQ.8nuIn8pIXLlaZiTGwowIqT-IjLwhMybE7PBTflFr9r2jpEme7iihbsOrL21H1fO4mBCRU3jrKy_lRqnRWhznBg",
+        "cancel": "https://sandbox-customer-portal.paddle.com/cpl_01m0fgfctscs7p93p82wchqd4m?action=cancel_subscription&subscription_id=sub_01m0snvmsm7b6p8xktm2e97fea&token=pga_eyJhbGciOiJFZERTQSIsImtpZCI6Imp3a18wMWhkazBuOHF3OG55NTJ5cGNocGNhazA1ayIsInR5cCI6IkpXVCJ9.eyJpZCI6InBnYV8wMW0wc3BhNTJyMzFqNmU1Z3Q5em1xYnQ2YiIsInNlbGxlci1pZCI6IjEwNDg1MyIsInR5cGUiOiJzdGFuZGFyZCIsInZlcnNpb24iOiIxIiwidXNhZ2UiOiJjdXN0b21lci1wb3J0YWwtc2Vzc2lvbiIsInNjb3BlIjoiY3VzdG9tZXIuYWRqdXN0bWVudC5yZWFkIGN1c3RvbWVyLmNoZWNrb3V0LmNyZWF0ZSBjdXN0b21lci5jaGVja291dC5yZWFkIGN1c3RvbWVyLmN1c3RvbWVyLnJlYWQgY3VzdG9tZXIuY3VzdG9tZXIudXBkYXRlIGN1c3RvbWVyLmN1c3RvbWVyLWFkZHJlc3MucmVhZCBjdXN0b21lci5jdXN0b21lci1hZGRyZXNzLnVwZGF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy5yZWFkIGN1c3RvbWVyLmN1c3RvbWVyLWJ1c2luZXNzLmNyZWF0ZSBjdXN0b21lci5jdXN0b21lci1idXNpbmVzcy51cGRhdGUgY3VzdG9tZXIuY3VzdG9tZXItcGF5bWVudC1tZXRob2QucmVhZCBjdXN0b21lci5jdXN0b21lci1wYXltZW50LW1ldGhvZC5kZWxldGUgY3VzdG9tZXIuaW52b2ljZS5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jYW5jZWwuY3JlYXRlIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi1jb25zZW50LXJlcXVpcmVtZW50LWdyYW50LmNyZWF0ZSBjdXN0b21lci5zdWJzY3JpcHRpb24tY29uc2VudC1yZXF1aXJlbWVudC5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi5yZWFkIGN1c3RvbWVyLnN1YnNjcmlwdGlvbi51cGRhdGUgY3VzdG9tZXIudHJhbnNhY3Rpb24uY3JlYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLnJlYWQgY3VzdG9tZXIudHJhbnNhY3Rpb24udXBkYXRlIGN1c3RvbWVyLnRyYW5zYWN0aW9uLm9yaWdpbi5yZWFkIiwiaXNzIjoiZ3Vlc3RhY2Nlc3Mtc2VydmljZSIsInN1YiI6ImN0bV8wMW0wc25zdG4xMHJhcGZyZnM2MTgwMmd0NyIsImV4cCI6MTc4NzY1NTA1NywiaWF0IjoxNzg3NTY4NjU3fQ.8nuIn8pIXLlaZiTGwowIqT-IjLwhMybE7PBTflFr9r2jpEme7iihbsOrL21H1fO4mBCRU3jrKy_lRqnRWhznBg"
+      },
+      "created_at": "2026-08-24T11:04:38.901Z",
+      "updated_at": "2026-08-24T11:04:38.901Z"
+    },
+    "sub_live_test_01": {
+      "subscription_id": "sub_live_test_01",
+      "customer_id": "ctm_live_test_01",
+      "status": "trialing",
+      "price_id": "pri_01m0sskxpygen4qnfq5vsevctm",
+      "product_id": "pro_01m0sseke0qb28xz2j467ypd2s",
+      "scheduled_change_action": null,
+      "scheduled_change_at": null,
+      "management_urls": null,
+      "created_at": "2026-08-24T12:00:54.592Z",
+      "updated_at": "2026-08-24T12:00:54.592Z"
+    }
+  },
+  "entitlements": {
+    "ent_ctm_test_123_pro_01m0fh7zfyczbfrk6vbjdq9dw2": {
+      "id": "ent_ctm_test_123_pro_01m0fh7zfyczbfrk6vbjdq9dw2",
+      "customer_id": "ctm_test_123",
+      "type": "lifetime",
+      "product_id": "pro_01m0fh7zfyczbfrk6vbjdq9dw2",
+      "price_id": "pri_01m0fh9dz24xy9gp99q8zm2f62",
+      "is_active": true,
+      "created_at": "2026-08-24T10:48:23.719Z",
+      "updated_at": "2026-08-24T10:48:23.719Z"
+    }
+  },
+  "processedEvents": {
+    "evt_test_001": {
+      "event_id": "evt_test_001",
+      "event_type": "subscription.created",
+      "processed_at": "2026-08-24T10:48:23.695Z"
+    },
+    "evt_test_lifetime": {
+      "event_id": "evt_test_lifetime",
+      "event_type": "transaction.completed",
+      "processed_at": "2026-08-24T10:48:23.755Z"
+    },
+    "evt_http_test_01": {
+      "event_id": "evt_http_test_01",
+      "event_type": "subscription.created",
+      "processed_at": "2026-08-24T10:48:52.724Z"
+    },
+    "evt_step04_init": {
+      "event_id": "evt_step04_init",
+      "event_type": "subscription.created",
+      "processed_at": "2026-08-24T11:04:38.828Z"
+    },
+    "evt_step04_upgrade": {
+      "event_id": "evt_step04_upgrade",
+      "event_type": "subscription.updated",
+      "processed_at": "2026-08-24T11:04:38.860Z"
+    },
+    "evt_step04_sched_cancel": {
+      "event_id": "evt_step04_sched_cancel",
+      "event_type": "subscription.updated",
+      "processed_at": "2026-08-24T11:04:38.889Z"
+    },
+    "evt_step04_imm_cancel": {
+      "event_id": "evt_step04_imm_cancel",
+      "event_type": "subscription.canceled",
+      "processed_at": "2026-08-24T11:04:38.911Z"
+    },
+    "evt_live_test_01": {
+      "event_id": "evt_live_test_01",
+      "event_type": "subscription.created",
+      "processed_at": "2026-08-24T12:00:54.753Z"
+    }
+  }
+}

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account & Subscription — Fenwick Labs Pro</title>
+  <meta name="description" content="Manage your Fenwick Labs Pro subscription, invoices, and payment methods." />
+
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <div class="logo-icon">FL</div>
+        <span>Fenwick Labs</span>
+      </a>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Pricing</a>
+        <div class="nav-badge">Customer Portal</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 40px; padding-bottom: 80px;">
+    <div class="welcome-container" style="max-width: 680px; text-align: left;">
+      <div style="text-align: center; margin-bottom: 24px;">
+        <div class="logo-icon" style="width: 48px; height: 48px; margin: 0 auto 12px; font-size: 1.2rem;">FL</div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; margin-bottom: 6px;">Manage Subscription</h1>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          Self-service subscription dashboard with real-time entitlement mirroring and Paddle portal integration.
+        </p>
+      </div>
+
+      <!-- Account Email Input -->
+      <div style="margin-bottom: 24px;">
+        <label for="account-email" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
+          Account Email Address
+        </label>
+        <div style="display: flex; gap: 10px;">
+          <input 
+            type="email" 
+            id="account-email" 
+            placeholder="e.g. lokademangesh123@gmail.com"
+            value="lokademangesh123@gmail.com"
+            style="flex: 1; padding: 12px 16px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-main); font-family: inherit; font-size: 0.95rem; outline: none;"
+          />
+          <button 
+            id="btn-check-access" 
+            onclick="checkAccess()"
+            class="btn-checkout btn-secondary" 
+            style="width: auto; padding: 12px 20px;"
+          >
+            Check Status
+          </button>
+        </div>
+      </div>
+
+      <!-- Access Status Card -->
+      <div id="status-card" style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Current Access State</span>
+          <span id="badge-access" style="background: rgba(52, 211, 153, 0.15); color: var(--accent-green); border: 1px solid rgba(52, 211, 153, 0.3); font-size: 0.75rem; padding: 4px 12px; border-radius: 999px; font-weight: 700;">
+            Checking...
+          </span>
+        </div>
+        <div id="status-details" style="font-size: 0.9rem; color: var(--text-main); line-height: 1.7;">
+          Checking mirrored Paddle subscription entitlements...
+        </div>
+      </div>
+
+      <!-- Subscription Actions Grid -->
+      <div id="actions-panel" style="display: none; margin-bottom: 24px;">
+        <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 14px; color: var(--text-main);">Self-Service Actions</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- Launch Portal -->
+          <button 
+            id="btn-open-portal" 
+            onclick="openCustomerPortal()"
+            class="btn-checkout btn-primary"
+            style="grid-column: 1 / -1;"
+          >
+            🔐 Open Paddle-Hosted Customer Portal
+          </button>
+
+          <!-- Schedule Cancel -->
+          <button 
+            onclick="cancelSubscription('next_billing_period')"
+            class="btn-checkout btn-secondary"
+            style="font-size: 0.85rem; padding: 10px 14px; border-color: rgba(251, 191, 36, 0.4); color: #fbbf24;"
+          >
+            ⏳ Cancel at End of Period
+          </button>
+
+          <!-- Cancel Immediately -->
+          <button 
+            onclick="cancelSubscription('immediately')"
+            class="btn-checkout btn-secondary"
+            style="font-size: 0.85rem; padding: 10px 14px; border-color: rgba(239, 68, 68, 0.4); color: #f87171;"
+          >
+            ❌ Cancel Immediately
+          </button>
+        </div>
+      </div>
+
+      <!-- Portal Info Notice -->
+      <div style="background: rgba(56, 189, 248, 0.05); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: var(--radius-sm); padding: 14px 16px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">
+        <strong style="color: var(--primary);">🌐 Official Paddle Customer Portal:</strong><br>
+        Access your subscriptions, invoices, and payment details directly via the hosted portal: 
+        <a href="https://customer-portal.paddle.com/cpl_01m0fg5ec1wrkp49mb9t95pex4" target="_blank" style="color: var(--primary); word-break: break-all;">https://customer-portal.paddle.com/cpl_01m0fg5ec1wrkp49mb9t95pex4</a>.
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Fenwick Labs. Paddle Live Production Self-Service Layer.</p>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    let currentSubscriptionId = null;
+
+    async function checkAccess() {
+      const email = document.getElementById('account-email').value.trim();
+      const badge = document.getElementById('badge-access');
+      const details = document.getElementById('status-details');
+      const actionsPanel = document.getElementById('actions-panel');
+
+      if (!email) {
+        alert('Please enter your email address');
+        return;
+      }
+
+      badge.textContent = 'Checking...';
+      badge.style.color = '#38bdf8';
+      badge.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+
+      try {
+        const res = await fetch(`/api/user/access?email=${encodeURIComponent(email)}`);
+        const data = await res.json();
+
+        if (data.hasAccess) {
+          badge.textContent = data.status.toUpperCase();
+          badge.style.color = 'var(--accent-green)';
+          badge.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+
+          currentSubscriptionId = data.subscriptionId;
+          actionsPanel.style.display = 'block';
+
+          let text = `<strong>Plan:</strong> ${data.plan === 'lifetime' ? 'Fenwick Labs Lifetime (One-time)' : 'Fenwick Labs Pro'}<br>`;
+          text += `<strong>Customer ID:</strong> <code>${data.customer?.id || 'Synced'}</code><br>`;
+          if (data.subscriptionId) {
+            text += `<strong>Subscription ID:</strong> <code>${data.subscriptionId}</code><br>`;
+          }
+          if (data.scheduledChangeAction) {
+            text += `<div style="margin-top: 8px; padding: 8px 12px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: 6px; color: #fbbf24;">
+              ⚠️ <strong>Scheduled Change:</strong> Subscription is set to <code>${data.scheduledChangeAction}</code> at the end of the billing period. <strong>Access remains fully active until then.</strong>
+            </div>`;
+          } else {
+            text += `<span style="color: var(--accent-green); font-weight: 600;">✓ Active access granted across all Fenwick Labs browser extensions.</span>`;
+          }
+          details.innerHTML = text;
+        } else {
+          badge.textContent = data.status ? data.status.toUpperCase() : 'NO ACCESS';
+          badge.style.color = 'var(--text-dim)';
+          badge.style.borderColor = 'var(--border-color)';
+          actionsPanel.style.display = 'none';
+          details.innerHTML = `No active paid access found for <strong>${email}</strong>.<br><a href="/" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Explore plans & start a free trial →</a>`;
+        }
+      } catch (err) {
+        badge.textContent = 'ERROR';
+        details.textContent = 'Failed to check access status: ' + err.message;
+      }
+    }
+
+    async function openCustomerPortal() {
+      const email = document.getElementById('account-email').value.trim();
+      const btn = document.getElementById('btn-open-portal');
+
+      if (!email) {
+        alert('Please enter your email address');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Resolving Secure Portal Session...';
+
+      try {
+        const res = await fetch('/api/customer-portal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.open(data.url, '_blank');
+          btn.disabled = false;
+          btn.textContent = '🔐 Open Paddle-Hosted Customer Portal';
+        } else {
+          alert('Notice: ' + (data.message || data.error || 'Portal URL not available'));
+          btn.disabled = false;
+          btn.textContent = '🔐 Open Paddle-Hosted Customer Portal';
+        }
+      } catch (err) {
+        alert('Error connecting to portal endpoint: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = '🔐 Open Paddle-Hosted Customer Portal';
+      }
+    }
+
+    async function cancelSubscription(mode) {
+      const email = document.getElementById('account-email').value.trim();
+      const confirmMsg = mode === 'immediately' 
+        ? 'Are you sure you want to cancel immediately? This will revoke access right away.'
+        : 'Schedule cancellation at the end of the billing period? You will retain access until the current period expires.';
+
+      if (!confirm(confirmMsg)) return;
+
+      try {
+        const res = await fetch('/api/subscription/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            subscriptionId: currentSubscriptionId,
+            effectiveFrom: mode
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          alert(data.message);
+          checkAccess();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to cancel subscription'));
+        }
+      } catch (err) {
+        alert('Request failed: ' + err.message);
+      }
+    }
+
+    // Auto-check on initial page load
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAccess();
+    });
+  </script>
+</body>
+</html>

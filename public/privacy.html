@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Fenwick Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <div class="logo-icon">FL</div>
+        <span>Fenwick Labs</span>
+      </a>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Pricing</a>
+        <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Manage Subscription</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 40px; padding-bottom: 80px; max-width: 800px;">
+    <div class="card" style="padding: 40px; text-align: left; line-height: 1.8; color: var(--text-main);">
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Privacy Policy</h1>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Last updated: August 2026</p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">1. Information We Collect</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Fenwick Labs respects your privacy. We collect minimal customer information necessary to authenticate subscriptions and provide software functionality. When purchasing, your payment and billing details are processed securely by Paddle.com.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">2. Payment Information</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Fenwick Labs does not store credit card numbers or payment credentials on our servers. All payment processing is handled in compliance with PCI-DSS standards by Paddle.com.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">3. Data Protection & Security</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        We implement encryption and industry-standard security measures to safeguard customer account information. We do not sell or rent personal information to third parties.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">4. Contact Us</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        If you have questions about this Privacy Policy or your personal data, email us at: <a href="mailto:mangesh.lokade.dev@gmail.com" style="color: var(--primary);">mangesh.lokade.dev@gmail.com</a> / <a href="mailto:privacy@fenwicklabs.com" style="color: var(--primary);">privacy@fenwicklabs.com</a>.<br /><br />
+        <strong>Legal Entity:</strong> Mangesh Madhavrao Lokade (Sole Proprietor) — Fenwick Labs<br />
+        <strong>Business Address:</strong> Taroda Bk, Nanded, Maharashtra 431605, India
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Fenwick Labs. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

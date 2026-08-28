@@ -1,0 +1,15 @@
+{
+  "name": "fenwick-labs-paddle-integration",
+  "version": "1.0.0",
+  "description": "Paddle Sandbox Step 02 Integration for Fenwick Labs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@paddle/paddle-js": "^1.4.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}

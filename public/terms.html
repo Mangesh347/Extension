@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — Fenwick Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <div class="logo-icon">FL</div>
+        <span>Fenwick Labs</span>
+      </a>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Pricing</a>
+        <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Manage Subscription</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: 40px; padding-bottom: 80px; max-width: 800px;">
+    <div class="card" style="padding: 40px; text-align: left; line-height: 1.8; color: var(--text-main);">
+      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Terms of Service</h1>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Last updated: August 2026</p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">1. Agreement to Terms</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        By accessing or using Fenwick Labs browser extensions and software services (including Job Fit Check, HirePilot AI, SoundBlast, Tempo Controller, and Chat Assistant Enhancer), you agree to be bound by these Terms of Service.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">2. Payments & Merchant of Record</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Payments are processed via Paddle.com (Merchant of Record) and PayPal. The accepted method is shown at checkout based on your region and preference. Paddle and PayPal provide customer service inquiries and handle returns, billing, and payment processing.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">3. Subscriptions & Billing</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        Paid plans (Fenwick Labs Pro Monthly, Pro Yearly, and Lifetime Access) grant access to premium features across all extensions. Subscriptions renew automatically unless canceled before the next billing cycle. You may cancel at any time via your self-service account portal.
+      </p>
+
+      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">4. Business Information & Contact</h2>
+      <p style="color: var(--text-muted); font-size: 0.95rem;">
+        For support or inquiries regarding these Terms, contact us:<br /><br />
+        <strong>Legal Name:</strong> Mangesh Madhavrao Lokade, sole proprietor<br />
+        <strong>Business Address:</strong> Taroda Bk, Nanded, Maharashtra 431605, India<br />
+        <strong>Contact Email:</strong> <a href="mailto:mangesh.lokade.dev@gmail.com" style="color: var(--primary);">mangesh.lokade.dev@gmail.com</a> / <a href="mailto:support@fenwicklabs.com" style="color: var(--primary);">support@fenwicklabs.com</a>
+      </p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="year"></span> Fenwick Labs. All rights reserved.</p>
+    </div>
+  </footer>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pricing & Plans — Fenwick Labs Pro</title>
+  <meta name="description" content="Unlock premium power across all Fenwick Labs browser extensions with Fenwick Labs Pro." />
+  
+  <!-- Inter Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Paddle.js v2 -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container">
+      <a href="/" class="logo">
+        <div class="logo-icon">FL</div>
+        <span>Fenwick Labs</span>
+      </a>
+      <div style="display: flex; gap: 14px; align-items: center;">
+        <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s;">
+          👤 Manage Subscription
+        </a>
+        <div class="nav-badge">Paddle Sandbox Mode</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="badge-tag">
+        <span class="badge-dot"></span>
+        <span>All-In-One Browser Extension Suite</span>
+      </div>
+      <h1>Simple, transparent pricing for <br /><span class="gradient-text">every power user</span></h1>
+      <p class="hero-subtitle">
+        One subscription unlocks Pro capabilities across all Fenwick Labs extensions. Includes a 15-day free trial on recurring plans.
+      </p>
+
+      <!-- Extension Showcase -->
+      <div class="extensions-pill-row">
+        <span class="ext-pill">✨ Job Fit Check</span>
+        <span class="ext-pill">🤖 HirePilot AI</span>
+        <span class="ext-pill">🔊 SoundBlast Booster</span>
+        <span class="ext-pill">⚡ Tempo Controller</span>
+        <span class="ext-pill">💬 Chat Assistant Enhancer</span>
+      </div>
+
+      <!-- Billing Cycle Toggle -->
+      <div class="toggle-wrapper">
+        <span id="monthly-label" class="billing-label">Monthly billing</span>
+        <label class="switch" for="billing-toggle">
+          <input type="checkbox" id="billing-toggle" checked />
+          <span class="slider"></span>
+        </label>
+        <span id="yearly-label" class="billing-label active">
+          Annual billing <span class="discount-badge">Save ~35%</span>
+        </span>
+      </div>
+    </section>
+
+    <!-- Accepted Payment Methods -->
+    <div class="payment-methods-bar">
+      <span class="pm-title">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+        Accepted payment methods:
+      </span>
+      <span class="pm-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Paddle
+      </span>
+      <span class="pm-pill">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="#0079C1"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 6 0h7.608c3.782 0 6.643 1.954 6.273 6.064-.47 5.23-3.79 7.876-7.854 7.876H9.378l-1.39 6.883a.641.641 0 0 1-.912.514z"/></svg>
+        PayPal
+      </span>
+      <span class="pm-pill">Credit / Debit Cards</span>
+      <span class="pm-pill">Apple Pay & Google Pay</span>
+    </div>
+
+    <!-- Real-time Localization & Global Payment Methods Banner -->
+    <div class="localization-banner" id="localization-banner">
+      <div class="loc-left">
+        <span>🌐 Real-time localized pricing active</span>
+        <span class="loc-badge" id="loc-country-badge">Detecting currency...</span>
+      </div>
+      <div class="loc-right">
+        <span>💳 Cards · PayPal · Apple Pay · Google Pay · Local Methods</span>
+      </div>
+    </div>
+
+    <!-- Pricing Cards Grid -->
+    <div class="pricing-grid">
+      <!-- Free Plan -->
+      <div class="pricing-card">
+        <div class="card-header">
+          <h3 class="card-title">Starter</h3>
+          <p class="card-desc">Essential utilities for casual extension users.</p>
+        </div>
+        <div class="card-price-block">
+          <div class="price-row">
+            <span class="price-amount">$0</span>
+            <span class="price-period">/ forever</span>
+          </div>
+          <div class="price-subtext">No credit card required</div>
+        </div>
+        <ul class="features-list">
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Basic features in all extensions</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>5 AI analyses / day</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Standard audio presets</span>
+          </li>
+          <li class="disabled">
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <span>Unlimited AI & automated autofill</span>
+          </li>
+          <li class="disabled">
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+            <span>Priority customer support</span>
+          </li>
+        </ul>
+        <button class="btn-checkout btn-secondary" onclick="alert('You are already using Starter features in your browser extensions!')">
+          Active Plan
+        </button>
+      </div>
+
+      <!-- Pro Plan (Featured) -->
+      <div class="pricing-card featured" id="pro-card">
+        <div class="featured-ribbon">Most Popular</div>
+        <div class="card-header">
+          <h3 class="card-title">Fenwick Labs Pro</h3>
+          <p class="card-desc">Complete unlocked access across all extensions.</p>
+        </div>
+        <div class="card-price-block">
+          <div class="price-row">
+            <span class="price-amount" id="pro-price-display">$39.00</span>
+            <span class="price-period" id="pro-period-display">/ year</span>
+          </div>
+          <div class="price-subtext" id="pro-trial-display">✓ Includes 15-day free trial</div>
+        </div>
+        <ul class="features-list">
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <strong>Unlimited Job Fit Check & Resume scoring</strong>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <strong>HirePilot AI automated autofill</strong>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>SoundBlast & Tempo controller pro modes</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Chat Assistant Enhancer unlimited sync</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Instant sync across all Chrome profiles</span>
+          </li>
+        </ul>
+        <button id="btn-buy-pro" class="btn-checkout btn-primary" onclick="window.checkoutPro()">
+          Start 15-Day Free Trial
+        </button>
+      </div>
+
+      <!-- Lifetime Plan -->
+      <div class="pricing-card">
+        <div class="card-header">
+          <h3 class="card-title">Lifetime Access</h3>
+          <p class="card-desc">Pay once, own all current and future extensions forever.</p>
+        </div>
+        <div class="card-price-block">
+          <div class="price-row">
+            <span class="price-amount" id="lifetime-price-display">$59.00</span>
+            <span class="price-period">/ one-time</span>
+          </div>
+          <div class="price-subtext">No recurring subscriptions ever</div>
+        </div>
+        <ul class="features-list">
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>All Pro features in every extension</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>All future extension releases included</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Unlimited AI usage and priority servers</span>
+          </li>
+          <li>
+            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span>Dedicated VIP support channel</span>
+          </li>
+        </ul>
+        <button id="btn-buy-lifetime" class="btn-checkout btn-secondary" onclick="window.checkoutLifetime()">
+          Get Lifetime Access
+        </button>
+      </div>
+    </div>
+
+    <!-- Sandbox Test Notice Box -->
+    <div class="sandbox-alert">
+      <div>🧪</div>
+      <div>
+        <strong>Paddle Sandbox Test Mode Active:</strong> You can test checkout safely. Use test card <code>4242 4242 4242 4242</code> with any future expiration date (e.g. <code>12/28</code>) and any 3-digit CVC (e.g. <code>123</code>). No real money is charged.
+      </div>
+    </div>
+
+    <!-- Guarantees & Features -->
+    <div class="guarantee-grid">
+      <div class="guarantee-item">
+        <div class="guarantee-icon">🛡️</div>
+        <h4>Paddle & PayPal Processing</h4>
+        <p>Payments are processed via Paddle.com (Merchant of Record) and PayPal. The accepted method is shown at checkout.</p>
+      </div>
+      <div class="guarantee-item">
+        <div class="guarantee-icon">⚡</div>
+        <h4>Instant Activation</h4>
+        <p>Your license key and Pro access are activated immediately after checkout.</p>
+      </div>
+      <div class="guarantee-item">
+        <div class="guarantee-icon">🔄</div>
+        <h4>Cancel Anytime</h4>
+        <p>Easily manage or cancel your subscription with 1-click customer portal access.</p>
+      </div>
+    </div>
+
+    <!-- Business Details & Contact Section (PayPal / Merchant Verification) -->
+    <section id="contact" style="margin-top: 50px; padding: 32px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
+        <div>
+          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+            🏢 Business & Legal Information
+          </h3>
+          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6;">
+            <strong>Fenwick Labs</strong> is operated by <strong>Mangesh Madhavrao Lokade, sole proprietor</strong>.
+          </p>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.875rem; color: var(--text-muted);">
+            <div><strong>Business address:</strong> Taroda Bk, Nanded, Maharashtra 431605, India</div>
+            <div><strong>Legal name:</strong> Mangesh Madhavrao Lokade, sole proprietor</div>
+            <div><strong>Contact email:</strong> <a href="mailto:mangesh.lokade.dev@gmail.com" style="color: var(--primary); text-decoration: none;">mangesh.lokade.dev@gmail.com</a></div>
+            <div><strong>Support desk:</strong> <a href="mailto:support@fenwicklabs.com" style="color: var(--text-main); text-decoration: none;">support@fenwicklabs.com</a></div>
+          </div>
+        </div>
+        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px;">
+          <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
+            💳 Payments & Billing
+          </h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
+            Payments are processed via <strong>Paddle.com (Merchant of Record)</strong> and <strong>PayPal</strong>. The accepted method is shown at checkout.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" style="padding: 30px 0; border-top: 1px solid var(--border-color); margin-top: 50px;">
+    <div class="container" style="display: flex; flex-direction: column; gap: 14px; align-items: center; text-align: center;">
+      <div style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; font-size: 0.88rem;">
+        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
+        <span style="color: var(--border-color);">•</span>
+        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+        <span style="color: var(--border-color);">•</span>
+        <a href="/refund.html" style="color: var(--text-muted); text-decoration: none;">Refund & Cancellation Policy</a>
+        <span style="color: var(--border-color);">•</span>
+        <a href="/account" style="color: var(--text-muted); text-decoration: none;">Customer Portal</a>
+        <span style="color: var(--border-color);">•</span>
+        <a href="#contact" style="color: var(--text-muted); text-decoration: none;">Contact: mangesh.lokade.dev@gmail.com</a>
+      </div>
+      <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0;">
+        © <span id="year"></span> Fenwick Labs · Legal Name: Mangesh Madhavrao Lokade (Sole Proprietor) · Taroda Bk, Nanded, Maharashtra 431605, India. Payments processed via Paddle.com (Merchant of Record) and PayPal.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
