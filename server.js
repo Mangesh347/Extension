@@ -258,13 +258,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`====================================================`);
-  console.log(`Fenwick Labs Paddle Sandbox Server Active`);
-  console.log(`Port: ${PORT} | Environment: ${process.env.PADDLE_ENVIRONMENT || 'sandbox'}`);
-  console.log(`Webhook Endpoint: http://localhost:${PORT}/api/webhooks`);
-  console.log(`Account & Portal: http://localhost:${PORT}/account`);
-  console.log(`====================================================`);
-});
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`====================================================`);
+    console.log(`Fenwick Labs Paddle Sandbox Server Active`);
+    console.log(`Port: ${PORT} | Environment: ${process.env.PADDLE_ENVIRONMENT || 'sandbox'}`);
+    console.log(`Webhook Endpoint: http://localhost:${PORT}/api/webhooks`);
+    console.log(`Account & Portal: http://localhost:${PORT}/account`);
+    console.log(`====================================================`);
+  });
+}
 
 module.exports = app;

@@ -1,12 +1,18 @@
 const fs = require('fs');
 const path = require('path');
 
-const DB_DIR = path.join(__dirname, 'data');
+const IS_VERCEL = Boolean(process.env.VERCEL);
+const BUNDLED_DB_FILE = path.join(__dirname, 'data', 'database.json');
+const DB_DIR = IS_VERCEL ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
 const DB_FILE = path.join(DB_DIR, 'database.json');
 
 // Ensure data directory exists
-if (!fs.existsSync(DB_DIR)) {
-  fs.mkdirSync(DB_DIR, { recursive: true });
+try {
+  if (!fs.existsSync(DB_DIR)) {
+    fs.mkdirSync(DB_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.warn('[DB] Could not create directory:', e.message);
 }
 
 // Initial DB schema
@@ -23,6 +29,9 @@ function loadDB() {
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf8');
       return JSON.parse(content);
+    } else if (fs.existsSync(BUNDLED_DB_FILE)) {
+      const content = fs.readFileSync(BUNDLED_DB_FILE, 'utf8');
+      return JSON.parse(content);
     }
   } catch (error) {
     console.error('Error loading database.json, initializing fresh store:', error);
@@ -37,7 +46,7 @@ function saveDB(data) {
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, DB_FILE);
   } catch (error) {
-    console.error('Error saving database.json:', error);
+    console.warn('Warning saving database.json in serverless environment:', error.message);
   }
 }
 
