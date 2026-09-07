@@ -217,9 +217,11 @@
         const banner = document.getElementById("testBanner");
         if (banner) {
           banner.textContent = testMode
-            ? (data.paypal_ready || data.razorpay_ready
-              ? "Test mode — using sandbox / rzp_test keys. No live charges. Flip PAYMENT_TEST_MODE=false on Vercel when ready."
-              : "Test mode — no gateway keys yet; checkout will simulate payment and still redirect to Claude Pro unlock.")
+            ? (data.razorpay_using_live_keys
+              ? "Razorpay live keys in use (no rzp_test keys found). Charges can be real — use a small amount to verify."
+              : (data.paypal_ready || data.razorpay_ready
+                ? "Test mode — using sandbox / rzp_test keys. No live charges. Flip PAYMENT_TEST_MODE=false on Vercel when ready."
+                : "Test mode — no gateway keys yet; checkout will simulate payment and still redirect to Claude Pro unlock."))
             : "Live mode — real charges via PayPal / Razorpay.";
         }
       } catch (_) {

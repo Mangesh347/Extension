@@ -65,10 +65,31 @@ function isTestMode() {
 
 /**
  * Resolve PayPal + Razorpay credentials for the active mode.
+ * Razorpay: TEST keys first, then LIVE / legacy (you may only have live keys).
  * Prefer explicit TEST_/LIVE_ vars; fall back to legacy PAYPAL_* / RAZORPAY_*.
  */
 function getPaymentCreds() {
   const test = isTestMode();
+
+  const razorpayKeyId =
+    (test
+      ? process.env.RAZORPAY_TEST_KEY_ID ||
+        process.env.RAZORPAY_LIVE_KEY_ID ||
+        process.env.RAZORPAY_KEY_ID
+      : process.env.RAZORPAY_LIVE_KEY_ID ||
+        process.env.RAZORPAY_KEY_ID ||
+        process.env.RAZORPAY_TEST_KEY_ID) || "";
+
+  const razorpayKeySecret =
+    (test
+      ? process.env.RAZORPAY_TEST_KEY_SECRET ||
+        process.env.RAZORPAY_LIVE_KEY_SECRET ||
+        process.env.RAZORPAY_KEY_SECRET
+      : process.env.RAZORPAY_LIVE_KEY_SECRET ||
+        process.env.RAZORPAY_KEY_SECRET ||
+        process.env.RAZORPAY_TEST_KEY_SECRET) || "";
+
+  const razorpayIsLiveKey = String(razorpayKeyId).startsWith("rzp_live_");
 
   if (test) {
     return {
@@ -81,8 +102,9 @@ function getPaymentCreds() {
         apiBase: "https://api-m.sandbox.paypal.com"
       },
       razorpay: {
-        keyId: process.env.RAZORPAY_TEST_KEY_ID || process.env.RAZORPAY_KEY_ID || "",
-        keySecret: process.env.RAZORPAY_TEST_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || ""
+        keyId: razorpayKeyId,
+        keySecret: razorpayKeySecret,
+        usingLiveKeys: razorpayIsLiveKey
       }
     };
   }
@@ -97,10 +119,35 @@ function getPaymentCreds() {
       apiBase: "https://api-m.paypal.com"
     },
     razorpay: {
-      keyId: process.env.RAZORPAY_LIVE_KEY_ID || process.env.RAZORPAY_KEY_ID || "",
-      keySecret: process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || ""
+      keyId: razorpayKeyId,
+      keySecret: razorpayKeySecret,
+      usingLiveKeys: razorpayIsLiveKey
     }
   };
+}
+
+/** Create Razorpay order via REST (no npm razorpay package needed on Vercel) */
+async function createRazorpayOrderRest({ keyId, keySecret, amountPaise, receipt, notes }) {
+  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+  const res = await fetch("https://api.razorpay.com/v1/orders", {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${auth}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      amount: amountPaise,
+      currency: "INR",
+      receipt,
+      notes: notes || {}
+    })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const msg = data?.error?.description || data?.error?.reason || data?.message || `Razorpay order failed (${res.status})`;
+    throw new Error(msg);
+  }
+  return data;
 }
 
 function allowSimulated() {
@@ -321,25 +368,27 @@ function mountCePayments(app) {
         });
       }
 
-      const Razorpay = require("razorpay");
-      const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
-      const order = await rzp.orders.create({
-        amount: quote.amountPaise,
-        currency: "INR",
+      const order = await createRazorpayOrderRest({
+        keyId,
+        keySecret,
+        amountPaise: quote.amountPaise,
         receipt: `ce_${quote.cycle}_${Date.now()}`.slice(0, 40),
         notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro", mode: creds.label }
       });
+
       return res.json({
         success: true,
         order_id: order.id,
         amount: order.amount,
-        currency: order.currency,
+        currency: order.currency || "INR",
         key_id: keyId,
         quote,
-        payment_mode: creds.label
+        payment_mode: creds.label,
+        razorpay_live_keys: !!creds.razorpay.usingLiveKeys
       });
     } catch (err) {
-      return res.status(500).json({ error: err.message });
+      console.error("[Razorpay create-order]", err);
+      return res.status(500).json({ error: err.message || "Razorpay order failed" });
     }
   });
 

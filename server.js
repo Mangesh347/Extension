@@ -96,9 +96,10 @@ app.get('/api/config', (req, res) => {
     payment_test_mode: test,
     payment_mode: creds.label,
     paypal_live: !test && paypalReady,
-    razorpay_live: !test && razorpayReady,
+    razorpay_live: !!creds.razorpay.usingLiveKeys,
     paypal_ready: paypalReady,
     razorpay_ready: razorpayReady,
+    razorpay_using_live_keys: !!creds.razorpay.usingLiveKeys,
     paypal_client_id: creds.paypal.clientId || '',
     paypal_mode: creds.paypal.apiMode,
     razorpay_key_id: creds.razorpay.keyId || '',
@@ -115,7 +116,6 @@ app.get('/api/config', (req, res) => {
       lifetime: 80
     },
     checkout_url: 'https://extension-six-alpha.vercel.app/checkout.html',
-    // Flip instructions for ops
     switch_to_live: 'Set PAYMENT_TEST_MODE=false on Vercel and redeploy',
     switch_to_test: 'Set PAYMENT_TEST_MODE=true on Vercel and redeploy'
   });
