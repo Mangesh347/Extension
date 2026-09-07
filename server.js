@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const db = require('./db');
 const { verifyPaddleSignature, processWebhookEvent, isPaddleIpAllowed } = require('./webhookHandler');
 const { createCustomerPortalSession } = require('./portalService');
+const { mountCePayments } = require('./cePaymentRoutes');
 
 dotenv.config();
 
@@ -78,6 +79,9 @@ app.post(
 // Body parser for remaining standard API routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Claude Enhancer Pro — PayPal + Razorpay (+ GST) checkout APIs
+mountCePayments(app);
 
 // ---------------- 2. CLIENT CONFIG ENDPOINT ----------------
 // Safe public config (Client Token & Price IDs only — NO API Keys or Signing Secrets)
@@ -233,6 +237,10 @@ app.get('/api/database/subscriptions', (req, res) => {
 
 // ---------------- 6. STATIC ASSETS & PAGES ----------------
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/checkout.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'checkout.html'));
+});
 
 app.get('/welcome', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'welcome.html'));

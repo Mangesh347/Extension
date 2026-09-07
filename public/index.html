@@ -13,9 +13,6 @@
   
   <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
-
-  <!-- Paddle.js v2 -->
-  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
 </head>
 <body>
   <!-- Header -->
@@ -29,7 +26,7 @@
         <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s;">
           👤 Manage Subscription
         </a>
-        <div class="nav-badge">Paddle Sandbox Mode</div>
+        <div class="nav-badge">PayPal · Razorpay</div>
       </div>
     </div>
   </header>
@@ -74,26 +71,20 @@
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
         Accepted payment methods:
       </span>
-      <span class="pm-pill">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#38bdf8"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        Paddle
-      </span>
-      <span class="pm-pill">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="#0079C1"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 6 0h7.608c3.782 0 6.643 1.954 6.273 6.064-.47 5.23-3.79 7.876-7.854 7.876H9.378l-1.39 6.883a.641.641 0 0 1-.912.514z"/></svg>
-        PayPal
-      </span>
+      <span class="pm-pill">PayPal</span>
+      <span class="pm-pill">Razorpay</span>
       <span class="pm-pill">Credit / Debit Cards</span>
-      <span class="pm-pill">Apple Pay & Google Pay</span>
+      <span class="pm-pill">UPI</span>
     </div>
 
     <!-- Real-time Localization & Global Payment Methods Banner -->
     <div class="localization-banner" id="localization-banner">
       <div class="loc-left">
-        <span>🌐 Real-time localized pricing active</span>
-        <span class="loc-badge" id="loc-country-badge">Detecting currency...</span>
+        <span>🌐 USD + INR checkout · GST included</span>
+        <span class="loc-badge" id="loc-country-badge">$4 / $40 / $80</span>
       </div>
       <div class="loc-right">
-        <span>💳 Cards · PayPal · Apple Pay · Google Pay · Local Methods</span>
+        <span>💳 PayPal · Razorpay Cards · UPI</span>
       </div>
     </div>
 
@@ -148,10 +139,10 @@
         </div>
         <div class="card-price-block">
           <div class="price-row">
-            <span class="price-amount" id="pro-price-display">$39.00</span>
+            <span class="price-amount" id="pro-price-display">$40.00</span>
             <span class="price-period" id="pro-period-display">/ year</span>
           </div>
-          <div class="price-subtext" id="pro-trial-display">✓ Includes 15-day free trial</div>
+          <div class="price-subtext" id="pro-trial-display">+ 18% GST · PayPal or Razorpay</div>
         </div>
         <ul class="features-list">
           <li>
@@ -175,9 +166,9 @@
             <span>Instant sync across all Chrome profiles</span>
           </li>
         </ul>
-        <button id="btn-buy-pro" class="btn-checkout btn-primary" onclick="window.checkoutPro()">
-          Start 15-Day Free Trial
-        </button>
+        <a id="btn-buy-pro" class="btn-checkout btn-primary" href="/checkout.html?cycle=yearly">
+          Upgrade with PayPal / Razorpay
+        </a>
       </div>
 
       <!-- Lifetime Plan -->
@@ -188,10 +179,10 @@
         </div>
         <div class="card-price-block">
           <div class="price-row">
-            <span class="price-amount" id="lifetime-price-display">$59.00</span>
+            <span class="price-amount" id="lifetime-price-display">$80.00</span>
             <span class="price-period">/ one-time</span>
           </div>
-          <div class="price-subtext">No recurring subscriptions ever</div>
+          <div class="price-subtext">+ 18% GST · lifetime on your email</div>
         </div>
         <ul class="features-list">
           <li>
@@ -211,9 +202,9 @@
             <span>Dedicated VIP support channel</span>
           </li>
         </ul>
-        <button id="btn-buy-lifetime" class="btn-checkout btn-secondary" onclick="window.checkoutLifetime()">
+        <a id="btn-buy-lifetime" class="btn-checkout btn-secondary" href="/checkout.html?cycle=lifetime">
           Get Lifetime Access
-        </button>
+        </a>
       </div>
     </div>
 
@@ -221,7 +212,7 @@
     <div class="sandbox-alert">
       <div>🧪</div>
       <div>
-        <strong>Paddle Sandbox Test Mode Active:</strong> You can test checkout safely. Use test card <code>4242 4242 4242 4242</code> with any future expiration date (e.g. <code>12/28</code>) and any 3-digit CVC (e.g. <code>123</code>). No real money is charged.
+        <strong>Secure checkout:</strong> Pay with PayPal (USD) or Razorpay (INR cards/UPI). Prices are $4/mo, $40/yr, or $80 lifetime plus 18% GST. Pro unlocks on your billing email (max 2 Chrome profiles).
       </div>
     </div>
 
@@ -229,8 +220,8 @@
     <div class="guarantee-grid">
       <div class="guarantee-item">
         <div class="guarantee-icon">🛡️</div>
-        <h4>Paddle & PayPal Processing</h4>
-        <p>Payments are processed via Paddle.com (Merchant of Record) and PayPal. The accepted method is shown at checkout.</p>
+        <h4>PayPal & Razorpay Processing</h4>
+        <p>Payments are processed via PayPal and Razorpay only. Card details stay on Razorpay’s secure checkout — never on our servers.</p>
       </div>
       <div class="guarantee-item">
         <div class="guarantee-icon">⚡</div>
@@ -266,7 +257,7 @@
             💳 Payments & Billing
           </h4>
           <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-            Payments are processed via <strong>Paddle.com (Merchant of Record)</strong> and <strong>PayPal</strong>. The accepted method is shown at checkout.
+            Payments are processed via <strong>PayPal</strong> and <strong>Razorpay</strong> (cards / UPI). GST (18%) is added at checkout.
           </p>
         </div>
       </div>
@@ -287,7 +278,7 @@
         <a href="#contact" style="color: var(--text-muted); text-decoration: none;">Contact: mangesh.lokade.dev@gmail.com</a>
       </div>
       <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0;">
-        © <span id="year"></span> Fenwick Labs · Legal Name: Mangesh Madhavrao Lokade (Sole Proprietor) · Taroda Bk, Nanded, Maharashtra 431605, India. Payments processed via Paddle.com (Merchant of Record) and PayPal.
+        © <span id="year"></span> Fenwick Labs · Legal Name: Mangesh Madhavrao Lokade (Sole Proprietor) · Taroda Bk, Nanded, Maharashtra 431605, India. Payments via PayPal &amp; Razorpay.
       </p>
     </div>
   </footer>

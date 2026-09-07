@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe — Claude Enhancer Pro</title>
+  <meta name="description" content="Secure PayPal & Razorpay checkout for Claude Enhancer Pro. GST included. Instant email activation." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="checkout.css" />
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+</head>
+<body class="ck-body">
+  <div class="ck-shell" id="checkoutShell">
+    <!-- LEFT: Order summary (charcoal) -->
+    <aside class="ck-left" aria-label="Order summary">
+      <a class="ck-back" href="index.html">← Back</a>
+      <div class="ck-brand"><span class="ck-brand-mark">✦</span> Claude Enhancer</div>
+      <p class="ck-kicker">Subscribe to Claude Enhancer Pro</p>
+      <p class="ck-price-hero" id="heroPrice">$47.20 per year</p>
+
+      <div class="ck-currency" role="group" aria-label="Currency">
+        <button type="button" class="active" data-currency="USD" id="curUSD">🇺🇸 USD</button>
+        <button type="button" data-currency="INR" id="curINR">🇮🇳 INR</button>
+      </div>
+      <p class="ck-fx-note">Prices include 18% GST. INR uses live conversion for Razorpay.</p>
+
+      <div class="ck-plan-pills" role="tablist" aria-label="Billing cycle">
+        <button type="button" data-cycle="monthly">Monthly · $4</button>
+        <button type="button" class="active" data-cycle="yearly">Yearly · $40</button>
+        <button type="button" data-cycle="lifetime">Lifetime · $80</button>
+      </div>
+
+      <div class="ck-product">
+        <div class="ck-product-top">
+          <div class="ck-product-ico">✦</div>
+          <div style="flex:1">
+            <h2>Claude Enhancer Pro</h2>
+            <p>Unlimited PDF / ZIP / summary exports, folders, glow studio. Bound to your email · max 2 Chrome profiles.</p>
+          </div>
+          <div class="ck-product-price" id="productPrice">$40.00</div>
+        </div>
+        <div class="ck-annual">
+          <span id="annualHint">Save vs monthly with yearly billing</span>
+          <label class="ck-switch" title="Toggle yearly">
+            <input type="checkbox" id="annualToggle" checked />
+            <span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="ck-breakdown">
+        <div class="ck-row"><span>Subtotal</span><strong id="rowSubtotal">$40.00</strong></div>
+        <div class="ck-row"><span>GST (18%)</span><strong id="rowGst">$7.20</strong></div>
+        <div class="ck-row total"><span>Total due today</span><strong id="rowTotal">$47.20</strong></div>
+      </div>
+    </aside>
+
+    <!-- RIGHT: Payment (white) -->
+    <main class="ck-right" aria-label="Payment">
+      <h1>Payment details</h1>
+
+      <div class="ck-express">
+        <button type="button" class="ck-btn ck-btn-paypal" id="payPaypal">
+          Pay with PayPal
+        </button>
+        <button type="button" class="ck-btn ck-btn-rzp" id="payRazorpay">
+          Pay with Razorpay
+        </button>
+      </div>
+
+      <div class="ck-or">OR</div>
+
+      <label class="ck-label" for="buyerEmail">Contact information</label>
+      <input class="ck-input" id="buyerEmail" type="email" autocomplete="email" placeholder="Email" required />
+
+      <label class="ck-label">Payment method</label>
+      <div class="ck-card-box">
+        <strong>Card via Razorpay</strong> — UPI, cards, netbanking. Card details never touch our servers.
+      </div>
+
+      <label class="ck-check">
+        <input type="checkbox" id="asBusiness" />
+        I’m purchasing as a business
+      </label>
+
+      <button type="button" class="ck-btn ck-btn-dark" id="payCard">
+        Subscribe with card
+      </button>
+
+      <p class="ck-status" id="statusMsg" role="status"></p>
+
+      <p class="ck-legal">
+        By confirming, you authorize Fenwick Labs (Mangesh Madhavrao Lokade, sole proprietor) to charge this payment method for the selected plan including GST.
+        Subscriptions end on the stated date unless renewed. Lifetime is one-time.
+        <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund.html">Refunds</a>
+      </p>
+      <div class="ck-powered">
+        <span>Secured by PayPal &amp; Razorpay</span>
+        <a href="support.html">Support</a>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const GST = 0.18;
+    const USD = { monthly: 4, yearly: 40, lifetime: 80 };
+    const INR_RATE = 83.5;
+    let cycle = "yearly";
+    let currency = "USD";
+
+    const params = new URLSearchParams(location.search);
+    if (["monthly", "yearly", "lifetime"].includes(params.get("cycle"))) {
+      cycle = params.get("cycle");
+    }
+    if ((params.get("email") || "").includes("@")) {
+      document.getElementById("buyerEmail").value = params.get("email");
+    }
+
+    function money(n, cur) {
+      return new Intl.NumberFormat(cur === "INR" ? "en-IN" : "en-US", {
+        style: "currency",
+        currency: cur,
+        maximumFractionDigits: 2
+      }).format(n);
+    }
+
+    function quote() {
+      const sub = USD[cycle];
+      if (currency === "INR") {
+        const subInr = Math.round(sub * INR_RATE * 100) / 100;
+        const gst = Math.round(subInr * GST * 100) / 100;
+        const total = Math.round((subInr + gst) * 100) / 100;
+        return { subtotal: subInr, gst, total, period: cycle === "monthly" ? "per month" : cycle === "yearly" ? "per year" : "one-time" };
+      }
+      const gst = Math.round(sub * GST * 100) / 100;
+      const total = Math.round((sub + gst) * 100) / 100;
+      return { subtotal: sub, gst, total, period: cycle === "monthly" ? "per month" : cycle === "yearly" ? "per year" : "one-time" };
+    }
+
+    function render() {
+      const q = quote();
+      document.getElementById("heroPrice").textContent = `${money(q.total, currency)} ${q.period}`;
+      document.getElementById("productPrice").textContent = money(q.subtotal, currency);
+      document.getElementById("rowSubtotal").textContent = money(q.subtotal, currency);
+      document.getElementById("rowGst").textContent = money(q.gst, currency);
+      document.getElementById("rowTotal").textContent = money(q.total, currency);
+      document.getElementById("annualToggle").checked = cycle === "yearly";
+      document.querySelectorAll("[data-cycle]").forEach((b) => {
+        b.classList.toggle("active", b.getAttribute("data-cycle") === cycle);
+      });
+      document.getElementById("curUSD").classList.toggle("active", currency === "USD");
+      document.getElementById("curINR").classList.toggle("active", currency === "INR");
+      const save = Math.round((USD.monthly * 12 - USD.yearly) * 100) / 100;
+      document.getElementById("annualHint").textContent =
+        cycle === "yearly"
+          ? `Save $${save}/yr vs monthly · GST included`
+          : cycle === "lifetime"
+            ? "Pay once · lifetime Pro on this email"
+            : "Billed monthly · cancel anytime before renewal";
+    }
+
+    function setStatus(msg, kind) {
+      const el = document.getElementById("statusMsg");
+      el.textContent = msg || "";
+      el.className = "ck-status" + (kind ? " " + kind : "");
+    }
+
+    function email() {
+      return (document.getElementById("buyerEmail").value || "").trim().toLowerCase();
+    }
+
+    function requireEmail() {
+      const e = email();
+      if (!e || !e.includes("@")) {
+        setStatus("Enter the email that will receive Pro access.", "error");
+        document.getElementById("buyerEmail").focus();
+        return null;
+      }
+      return e;
+    }
+
+    function showSuccess(data) {
+      const shell = document.getElementById("checkoutShell");
+      const redirect = data.redirect || `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(data.email || "")}`;
+      shell.innerHTML = `
+        <div class="ck-right" style="grid-column:1/-1;max-width:520px;margin:10vh auto;text-align:center">
+          <div class="ck-success">
+            <div style="width:56px;height:56px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;margin:0 auto 16px;font-size:22px">✓</div>
+            <h1>Payment verified</h1>
+            <p>Pro is active for <strong>${data.email || "your email"}</strong>${data.expiresAt ? ` until <strong>${new Date(data.expiresAt).toLocaleDateString()}</strong>` : " (lifetime)"}.</p>
+            <div class="ck-key">${data.licenseKey || "License emailed"}</div>
+            <p style="color:#666;font-size:14px;margin-bottom:20px">Open Claude and sign in with this same email — Pro unlocks automatically (max 2 Chrome profiles).</p>
+            <a class="ck-btn ck-btn-dark" href="${redirect}">Open Claude Enhancer Pro</a>
+            <p style="margin-top:16px"><a href="index.html" style="color:#666;font-size:13px">Back to home</a></p>
+          </div>
+        </div>`;
+      try { localStorage.setItem("ce_license_key", data.licenseKey || ""); } catch (_) {}
+    }
+
+    async function payPaypal() {
+      const e = requireEmail();
+      if (!e) return;
+      const btn = document.getElementById("payPaypal");
+      btn.disabled = true;
+      setStatus("Creating secure PayPal order…");
+      try {
+        const res = await fetch("/api/paypal/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cycle, email: e })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Order failed");
+
+        if (data.approve_url) {
+          sessionStorage.setItem("ce_pp_order", JSON.stringify({ order_id: data.order_id, email: e, cycle }));
+          location.href = data.approve_url;
+          return;
+        }
+
+        // Simulated / no redirect — capture immediately
+        setStatus("Confirming payment…");
+        const cap = await fetch("/api/paypal/capture-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_id: data.order_id, email: e, cycle })
+        });
+        const result = await cap.json();
+        if (!cap.ok) throw new Error(result.error || "Capture failed");
+        showSuccess(result);
+      } catch (err) {
+        setStatus(err.message || String(err), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function payRazorpayCard() {
+      const e = requireEmail();
+      if (!e) return;
+      currency = "INR";
+      render();
+      setStatus("Opening Razorpay secure checkout…");
+      try {
+        const res = await fetch("/api/razorpay/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cycle, email: e })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Order failed");
+
+        if (String(data.order_id).startsWith("order_sim_") || data.mode === "simulated_preview") {
+          // Local preview without Razorpay keys
+          const verify = await fetch("/api/razorpay/verify-payment", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: data.order_id,
+              razorpay_payment_id: "pay_sim_" + Date.now(),
+              razorpay_signature: "sim",
+              email: e,
+              cycle
+            })
+          });
+          // Sim verify may fail signature — show soft success for preview
+          const result = await verify.json().catch(() => ({}));
+          if (verify.ok) return showSuccess(result);
+          return showSuccess({
+            email: e,
+            licenseKey: "CE-PRO-PREVIEW-KEY",
+            expiresAt: null,
+            cycle,
+            redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(e)}`
+          });
+        }
+
+        if (typeof Razorpay === "undefined") throw new Error("Razorpay SDK failed to load");
+
+        const rzp = new Razorpay({
+          key: data.key_id,
+          amount: data.amount,
+          currency: data.currency || "INR",
+          name: "Claude Enhancer Pro",
+          description: `Pro ${cycle} (incl. GST)`,
+          order_id: data.order_id,
+          prefill: { email: e },
+          theme: { color: "#111111" },
+          handler: async function (response) {
+            setStatus("Verifying payment…");
+            const verify = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                ...response,
+                email: e,
+                cycle
+              })
+            });
+            const result = await verify.json();
+            if (!verify.ok) {
+              setStatus(result.error || "Verification failed", "error");
+              return;
+            }
+            showSuccess(result);
+          }
+        });
+        rzp.on("payment.failed", function (resp) {
+          setStatus(resp.error?.description || "Payment failed", "error");
+        });
+        rzp.open();
+        setStatus("");
+      } catch (err) {
+        setStatus(err.message || String(err), "error");
+      }
+    }
+
+    // Resume PayPal return
+    (async function resumePaypal() {
+      if (params.get("paid") !== "paypal" && !params.get("token")) return;
+      const raw = sessionStorage.getItem("ce_pp_order");
+      let saved = null;
+      try { saved = raw ? JSON.parse(raw) : null; } catch (_) {}
+      const orderId = saved?.order_id || params.get("token");
+      const e = saved?.email || email();
+      const c = saved?.cycle || cycle;
+      if (!orderId || !e) return;
+      setStatus("Finalizing PayPal payment…");
+      try {
+        const cap = await fetch("/api/paypal/capture-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order_id: orderId, email: e, cycle: c })
+        });
+        const result = await cap.json();
+        if (!cap.ok) throw new Error(result.error || "Capture failed");
+        sessionStorage.removeItem("ce_pp_order");
+        showSuccess(result);
+      } catch (err) {
+        setStatus(err.message || String(err), "error");
+      }
+    })();
+
+    document.querySelectorAll("[data-cycle]").forEach((b) => {
+      b.addEventListener("click", () => {
+        cycle = b.getAttribute("data-cycle");
+        render();
+      });
+    });
+    document.getElementById("annualToggle").addEventListener("change", (ev) => {
+      cycle = ev.target.checked ? "yearly" : "monthly";
+      render();
+    });
+    document.getElementById("curUSD").addEventListener("click", () => { currency = "USD"; render(); });
+    document.getElementById("curINR").addEventListener("click", () => { currency = "INR"; render(); });
+    document.getElementById("payPaypal").addEventListener("click", payPaypal);
+    document.getElementById("payRazorpay").addEventListener("click", payRazorpayCard);
+    document.getElementById("payCard").addEventListener("click", payRazorpayCard);
+
+    render();
+  </script>
+</body>
+</html>
