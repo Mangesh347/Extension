@@ -1,6 +1,6 @@
 /**
  * Claude Enhancer Pro — PayPal + Razorpay routes
- * Dual credentials: keep TEST + LIVE in Vercel; flip PAYMENT_TEST_MODE.
+ * PayPal: TEST/LIVE via PAYMENT_TEST_MODE. Razorpay: LIVE keys only (no sim/test).
  */
 
 const crypto = require("crypto");
@@ -356,19 +356,15 @@ function mountCePayments(app) {
       const creds = getPaymentCreds();
       const { keyId, keySecret } = creds.razorpay;
 
-      if (!keyId || !keySecret || req.body?.simulate === true) {
-        if (!allowSimulated() && !creds.test) {
-          return res.status(503).json({ error: "Razorpay live credentials missing" });
-        }
-        return res.json({
-          success: true,
-          order_id: `order_sim_${Date.now()}`,
-          amount: quote.amountPaise,
-          currency: "INR",
-          key_id: keyId || "rzp_test_placeholder",
-          quote,
-          mode: "simulated_preview",
-          payment_mode: creds.label
+      // Razorpay is LIVE-only — never simulate / never use rzp_test
+      if (!keyId || !keySecret) {
+        return res.status(503).json({
+          error: "Razorpay live credentials missing. Set RAZORPAY_LIVE_KEY_ID + RAZORPAY_LIVE_KEY_SECRET on Vercel."
+        });
+      }
+      if (!String(keyId).startsWith("rzp_live_")) {
+        return res.status(503).json({
+          error: "Razorpay must use a live key (rzp_live_…). Remove test keys from Vercel."
         });
       }
 
@@ -377,8 +373,12 @@ function mountCePayments(app) {
         keySecret,
         amountPaise: quote.amountPaise,
         receipt: `ce_${quote.cycle}_${Date.now()}`.slice(0, 40),
-        notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro", mode: creds.label }
+        notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro", mode: "live" }
       });
+
+      // #region agent log
+      fetch('http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a325af'},body:JSON.stringify({sessionId:'a325af',runId:'post-fix',hypothesisId:'R2',location:'cePaymentRoutes.js:create-order',message:'Live Razorpay order created',data:{orderPrefix:String(order.id||'').slice(0,12),keyPrefix:String(keyId).slice(0,12),amount:order.amount},timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
       return res.json({
         success: true,
@@ -387,8 +387,8 @@ function mountCePayments(app) {
         currency: order.currency || "INR",
         key_id: keyId,
         quote,
-        payment_mode: creds.label,
-        razorpay_live_keys: !!creds.razorpay.usingLiveKeys
+        payment_mode: "live",
+        razorpay_live_keys: true
       });
     } catch (err) {
       console.error("[Razorpay create-order]", err);
@@ -411,21 +411,26 @@ function mountCePayments(app) {
 
       const creds = getPaymentCreds();
       const { keySecret } = creds.razorpay;
-      const isSim =
+      if (!keySecret) {
+        return res.status(503).json({ error: "Razorpay live secret missing" });
+      }
+      // Reject any leftover test/sim payloads
+      if (
         String(razorpay_order_id).startsWith("order_sim_") ||
         razorpay_signature === "test_mode" ||
-        req.body?.simulate === true;
+        req.body?.simulate === true
+      ) {
+        return res.status(400).json({ error: "Simulated Razorpay payments are disabled. Use live checkout only." });
+      }
 
-      if (!isSim && keySecret) {
-        const expected = crypto
-          .createHmac("sha256", keySecret)
-          .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-          .digest("hex");
-        const a = Buffer.from(expected);
-        const b = Buffer.from(String(razorpay_signature));
-        if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
-          return res.status(400).json({ error: "Invalid signature" });
-        }
+      const expected = crypto
+        .createHmac("sha256", keySecret)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest("hex");
+      const a = Buffer.from(expected);
+      const b = Buffer.from(String(razorpay_signature));
+      if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        return res.status(400).json({ error: "Invalid signature" });
       }
 
       const quote = quoteINR(cycle);
@@ -443,7 +448,7 @@ function mountCePayments(app) {
         expires: exp,
         gst: quote.gst,
         subtotal: quote.subtotal,
-        test: creds.test || isSim
+        test: false
       });
       return res.json({
         success: true,
@@ -451,7 +456,7 @@ function mountCePayments(app) {
         email: billingEmail,
         cycle: quote.cycle,
         expiresAt: exp,
-        payment_mode: creds.label,
+        payment_mode: "live",
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
       });
     } catch (err) {
