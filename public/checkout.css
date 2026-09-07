@@ -228,13 +228,14 @@ body.ck-body {
   letter-spacing: -0.02em;
 }
 
-.ck-express { display: grid; gap: 10px; margin-bottom: 18px; }
+.ck-express { display: grid; gap: 12px; margin-bottom: 18px; }
 
 .ck-btn {
   appearance: none;
   border: 0;
-  border-radius: 8px;
+  border-radius: 4px;
   padding: 14px 16px;
+  min-height: 48px;
   font: inherit;
   font-weight: 700;
   font-size: 15px;
@@ -244,12 +245,45 @@ body.ck-body {
   justify-content: center;
   gap: 10px;
   width: 100%;
+  transition: filter 120ms ease-out, box-shadow 120ms ease-out, transform 120ms ease-out;
 }
 .ck-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.ck-btn-paypal { background: #ffc439; color: var(--pp-blue); }
-.ck-btn-rzp { background: var(--rzp); color: #fff; }
+.ck-btn:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 2px;
+}
+
+/* Official PayPal gold checkout button */
+.ck-btn-paypal {
+  background: #ffc439;
+  color: #003087;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+.ck-btn-paypal:hover:not(:disabled) { filter: brightness(0.97); }
+.ck-btn-paypal:active:not(:disabled) { filter: brightness(0.94); }
+
+/* Official Razorpay mark on light button (logo colors need light bg) */
+.ck-btn-rzp {
+  background: #ffffff;
+  color: #072654;
+  border: 1px solid #d6d9de;
+  box-shadow: 0 1px 0 rgba(7, 38, 84, 0.06);
+}
+.ck-btn-rzp:hover:not(:disabled) { background: #f7f8fa; }
+.ck-btn-rzp:active:not(:disabled) { background: #eef0f3; }
+
 .ck-btn-dark { background: #111; color: #fff; }
-.ck-logo { height: 20px; width: auto; display: block; }
+.ck-btn-dark:hover:not(:disabled) { filter: brightness(1.08); }
+
+.ck-brand-logo {
+  display: block;
+  height: 26px;
+  width: auto;
+  object-fit: contain;
+  pointer-events: none;
+}
+.ck-brand-logo-pp { height: 24px; }
+.ck-brand-logo-rzp { height: 28px; }
 
 .ck-or {
   display: flex;
@@ -295,6 +329,11 @@ body.ck-body {
   color: #444;
   display: flex;
   align-items: center;
+  gap: 14px;
+}
+.ck-card-box .ck-brand-logo { height: 22px; flex-shrink: 0; }
+.ck-card-box strong { color: #111; }
+  align-items: center;
   gap: 12px;
 }
 .ck-card-box strong { color: #111; }
@@ -323,6 +362,11 @@ body.ck-body {
   font-size: 12px;
   color: #999;
   flex-wrap: wrap;
+}
+.ck-powered img {
+  height: 18px;
+  width: auto;
+  opacity: 0.9;
 }
 .ck-status {
   margin-top: 14px;
