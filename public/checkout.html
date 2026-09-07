@@ -216,13 +216,12 @@
         // With real TEST keys, banner still shows "test" but payments hit sandbox (not silent sim)
         const banner = document.getElementById("testBanner");
         if (banner) {
-          banner.textContent = testMode
+          banner.textContent = data.razorpay_ready
             ? (data.razorpay_using_live_keys
-              ? "Razorpay live keys in use (no rzp_test keys found). Charges can be real — use a small amount to verify."
-              : (data.paypal_ready || data.razorpay_ready
-                ? "Test mode — using sandbox / rzp_test keys. No live charges. Flip PAYMENT_TEST_MODE=false on Vercel when ready."
-                : "Test mode — no gateway keys yet; checkout will simulate payment and still redirect to Claude Pro unlock."))
-            : "Live mode — real charges via PayPal / Razorpay.";
+              ? "Razorpay: LIVE keys active (real charges). PayPal may still be sandbox if PAYMENT_TEST_MODE=true."
+              : "Razorpay keys loaded.")
+            : "Razorpay not configured — set RAZORPAY_LIVE_KEY_ID + RAZORPAY_LIVE_KEY_SECRET on Vercel (remove rzp_test_paste_here placeholders).";
+          banner.classList.toggle("on", true);
         }
       } catch (_) {
         testMode = true;

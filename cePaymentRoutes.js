@@ -57,54 +57,50 @@ function hashEmail(email) {
   return crypto.createHash("sha256").update(String(email || "").toLowerCase().trim()).digest("hex");
 }
 
-/** true = use sandbox/test keys; false = use live keys */
+function envTrim(name) {
+  const v = process.env[name];
+  if (v == null) return "";
+  const s = String(v).trim();
+  // Ignore leftover template placeholders from ENV_PASTE.txt
+  if (!s || /paste_here|YOUR_PROJECT|xxxxx|optional/i.test(s)) return "";
+  return s;
+}
+
+/** true = PayPal sandbox; Razorpay is always LIVE keys for this project */
 function isTestMode() {
-  // Default to TEST until explicitly set false (safer)
   return String(process.env.PAYMENT_TEST_MODE || "true").toLowerCase() !== "false";
 }
 
 /**
- * Resolve PayPal + Razorpay credentials for the active mode.
- * Razorpay: TEST keys first, then LIVE / legacy (you may only have live keys).
- * Prefer explicit TEST_/LIVE_ vars; fall back to legacy PAYPAL_* / RAZORPAY_*.
+ * PayPal: TEST vs LIVE by PAYMENT_TEST_MODE.
+ * Razorpay: LIVE only (RAZORPAY_LIVE_* or RAZORPAY_KEY_*) — no test keys.
  */
 function getPaymentCreds() {
   const test = isTestMode();
 
   const razorpayKeyId =
-    (test
-      ? process.env.RAZORPAY_TEST_KEY_ID ||
-        process.env.RAZORPAY_LIVE_KEY_ID ||
-        process.env.RAZORPAY_KEY_ID
-      : process.env.RAZORPAY_LIVE_KEY_ID ||
-        process.env.RAZORPAY_KEY_ID ||
-        process.env.RAZORPAY_TEST_KEY_ID) || "";
-
+    envTrim("RAZORPAY_LIVE_KEY_ID") ||
+    envTrim("RAZORPAY_KEY_ID") ||
+    "";
   const razorpayKeySecret =
-    (test
-      ? process.env.RAZORPAY_TEST_KEY_SECRET ||
-        process.env.RAZORPAY_LIVE_KEY_SECRET ||
-        process.env.RAZORPAY_KEY_SECRET
-      : process.env.RAZORPAY_LIVE_KEY_SECRET ||
-        process.env.RAZORPAY_KEY_SECRET ||
-        process.env.RAZORPAY_TEST_KEY_SECRET) || "";
-
-  const razorpayIsLiveKey = String(razorpayKeyId).startsWith("rzp_live_");
+    envTrim("RAZORPAY_LIVE_KEY_SECRET") ||
+    envTrim("RAZORPAY_KEY_SECRET") ||
+    "";
 
   if (test) {
     return {
       test: true,
       label: "test",
       paypal: {
-        clientId: process.env.PAYPAL_TEST_CLIENT_ID || process.env.PAYPAL_CLIENT_ID || "",
-        clientSecret: process.env.PAYPAL_TEST_CLIENT_SECRET || process.env.PAYPAL_CLIENT_SECRET || "",
+        clientId: envTrim("PAYPAL_TEST_CLIENT_ID") || envTrim("PAYPAL_CLIENT_ID"),
+        clientSecret: envTrim("PAYPAL_TEST_CLIENT_SECRET") || envTrim("PAYPAL_CLIENT_SECRET"),
         apiMode: "sandbox",
         apiBase: "https://api-m.sandbox.paypal.com"
       },
       razorpay: {
         keyId: razorpayKeyId,
         keySecret: razorpayKeySecret,
-        usingLiveKeys: razorpayIsLiveKey
+        usingLiveKeys: String(razorpayKeyId).startsWith("rzp_live_")
       }
     };
   }
@@ -113,22 +109,27 @@ function getPaymentCreds() {
     test: false,
     label: "live",
     paypal: {
-      clientId: process.env.PAYPAL_LIVE_CLIENT_ID || process.env.PAYPAL_CLIENT_ID || "",
-      clientSecret: process.env.PAYPAL_LIVE_CLIENT_SECRET || process.env.PAYPAL_CLIENT_SECRET || "",
+      clientId: envTrim("PAYPAL_LIVE_CLIENT_ID") || envTrim("PAYPAL_CLIENT_ID"),
+      clientSecret: envTrim("PAYPAL_LIVE_CLIENT_SECRET") || envTrim("PAYPAL_CLIENT_SECRET"),
       apiMode: "live",
       apiBase: "https://api-m.paypal.com"
     },
     razorpay: {
       keyId: razorpayKeyId,
       keySecret: razorpayKeySecret,
-      usingLiveKeys: razorpayIsLiveKey
+      usingLiveKeys: String(razorpayKeyId).startsWith("rzp_live_")
     }
   };
 }
 
 /** Create Razorpay order via REST (no npm razorpay package needed on Vercel) */
 async function createRazorpayOrderRest({ keyId, keySecret, amountPaise, receipt, notes }) {
-  const auth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+  const id = String(keyId || "").trim();
+  const secret = String(keySecret || "").trim();
+  if (!id.startsWith("rzp_")) {
+    throw new Error("Invalid Razorpay Key ID — must start with rzp_live_ (set RAZORPAY_LIVE_KEY_ID on Vercel)");
+  }
+  const auth = Buffer.from(`${id}:${secret}`).toString("base64");
   const res = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
     headers: {
@@ -145,6 +146,9 @@ async function createRazorpayOrderRest({ keyId, keySecret, amountPaise, receipt,
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const msg = data?.error?.description || data?.error?.reason || data?.message || `Razorpay order failed (${res.status})`;
+    // #region agent log
+    fetch('http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a325af'},body:JSON.stringify({sessionId:'a325af',runId:'rzp',hypothesisId:'R1',location:'cePaymentRoutes.js:createRazorpayOrderRest',message:'Razorpay auth/order failed',data:{status:res.status,keyPrefix:id.slice(0,12),err:String(msg).slice(0,120)},timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
     throw new Error(msg);
   }
   return data;
