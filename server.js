@@ -86,14 +86,29 @@ mountCePayments(app);
 // ---------------- 2. CLIENT CONFIG ENDPOINT ----------------
 // Safe public config (Client Token & Price IDs only — NO API Keys or Signing Secrets)
 app.get('/api/config', (req, res) => {
+  const paypalLive = Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.PAYMENT_TEST_MODE !== 'true');
+  const razorpayLive = Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.PAYMENT_TEST_MODE !== 'true');
   res.json({
-    environment: process.env.PADDLE_ENVIRONMENT || 'sandbox',
-    clientToken: process.env.PADDLE_CLIENT_TOKEN || '',
+    environment: process.env.PAYMENT_TEST_MODE === 'true' ? 'test' : (process.env.PADDLE_ENVIRONMENT || 'sandbox'),
+    payment_test_mode: process.env.PAYMENT_TEST_MODE === 'true' || (!paypalLive && !razorpayLive),
+    paypal_live: paypalLive,
+    razorpay_live: razorpayLive,
+    paypal_client_id: process.env.PAYPAL_CLIENT_ID || '',
+    paypal_mode: (process.env.PAYPAL_MODE || 'sandbox').toLowerCase(),
+    razorpay_key_id: process.env.RAZORPAY_KEY_ID || '',
+    providers: ['paypal', 'razorpay'],
+    gst_rate: 0.18,
+    plans: {
+      monthly: { priceUSD: 4 },
+      yearly: { priceUSD: 40 },
+      lifetime: { priceUSD: 80 }
+    },
     prices: {
-      proMonthly: process.env.PADDLE_PRICE_PRO_MONTHLY || 'pri_01m0fh3wan3ys1as29tqnn6st3',
-      proYearly: process.env.PADDLE_PRICE_PRO_YEARLY || 'pri_01m0fh5q767z9g97r0tteajsdh',
-      lifetime: process.env.PADDLE_PRICE_LIFETIME || 'pri_01m0fh9dz24xy9gp99q8zm2f62'
-    }
+      proMonthly: 4,
+      proYearly: 40,
+      lifetime: 80
+    },
+    checkout_url: 'https://extension-six-alpha.vercel.app/checkout.html'
   });
 });
 

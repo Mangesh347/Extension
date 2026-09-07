@@ -1,25 +1,26 @@
-/* Claude Enhancer — Hosted checkout (dark charcoal / white) */
+/* Checkout — charcoal left / white right (site system) */
 :root {
-  --ck-ink: #0a0a0a;
-  --ck-charcoal: #111111;
-  --ck-panel: #161616;
-  --ck-line: #2a2a2a;
-  --ck-muted: #a3a3a3;
-  --ck-white: #ffffff;
-  --ck-soft: #f6f6f6;
-  --ck-border: #e5e5e5;
-  --ck-pay-blue: #0070ba;
-  --ck-rzp: #0c2454;
-  --ck-radius: 10px;
-  --ck-font: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
+  --ink: #000000;
+  --charcoal: #111111;
+  --panel: #161616;
+  --line: #2a2a2a;
+  --muted: #a3a3a3;
+  --white: #ffffff;
+  --soft: #f6f6f6;
+  --border: #e5e5e5;
+  --font: "Inter", system-ui, sans-serif;
+  --pp-blue: #003087;
+  --pp-sky: #009cde;
+  --rzp: #072654;
 }
 
 * { box-sizing: border-box; }
 html, body { margin: 0; min-height: 100%; }
 body.ck-body {
-  font-family: var(--ck-font);
-  color: var(--ck-ink);
-  background: var(--ck-white);
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--white);
+  -webkit-font-smoothing: antialiased;
 }
 
 .ck-shell {
@@ -29,8 +30,8 @@ body.ck-body {
 }
 
 .ck-left {
-  background: var(--ck-charcoal);
-  color: var(--ck-white);
+  background: var(--charcoal);
+  color: var(--white);
   padding: 40px 48px 48px;
   display: flex;
   flex-direction: column;
@@ -39,13 +40,14 @@ body.ck-body {
 .ck-back {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  color: var(--ck-muted);
+  gap: 8px;
+  color: var(--muted);
   text-decoration: none;
-  font-size: 14px;
-  margin-bottom: 36px;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 32px;
 }
-.ck-back:hover { color: var(--ck-white); }
+.ck-back:hover { color: var(--white); }
 
 .ck-brand {
   display: flex;
@@ -57,26 +59,39 @@ body.ck-body {
 }
 .ck-brand-mark {
   width: 28px; height: 28px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #fff 0%, #bbb 100%);
-  color: #111;
+  border-radius: 7px;
+  background: var(--white);
+  color: var(--ink);
   display: grid;
   place-items: center;
-  font-size: 14px;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.ck-kicker { color: var(--ck-muted); font-size: 15px; margin: 0 0 8px; }
+.ck-kicker { color: var(--muted); font-size: 14px; margin: 0 0 8px; }
 .ck-price-hero {
-  font-size: clamp(2rem, 4vw, 2.75rem);
-  font-weight: 800;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: 750;
   letter-spacing: -0.03em;
   margin: 0 0 20px;
   line-height: 1.1;
 }
 
+.ck-test {
+  display: none;
+  margin-bottom: 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #e5e5e5;
+  background: #1a1a1a;
+}
+.ck-test.on { display: block; }
+
 .ck-currency {
   display: inline-flex;
-  border: 1px solid var(--ck-line);
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -84,7 +99,7 @@ body.ck-body {
 .ck-currency button {
   background: transparent;
   border: 0;
-  color: var(--ck-muted);
+  color: var(--muted);
   padding: 8px 14px;
   font: inherit;
   font-size: 13px;
@@ -92,14 +107,37 @@ body.ck-body {
   cursor: pointer;
 }
 .ck-currency button.active {
-  background: #fff;
-  color: #111;
+  background: var(--white);
+  color: var(--ink);
 }
-.ck-fx-note { color: #777; font-size: 12px; margin: 0 0 28px; }
+.ck-fx-note { color: #777; font-size: 12px; margin: 0 0 24px; }
+
+.ck-plan-pills {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.ck-plan-pills button {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ck-plan-pills button.active {
+  background: var(--white);
+  color: var(--ink);
+  border-color: var(--white);
+}
 
 .ck-product {
-  background: var(--ck-panel);
-  border: 1px solid var(--ck-line);
+  background: var(--panel);
+  border: 1px solid var(--line);
   border-radius: 14px;
   padding: 18px;
   margin-bottom: 28px;
@@ -112,23 +150,16 @@ body.ck-body {
 .ck-product-ico {
   width: 44px; height: 44px;
   border-radius: 10px;
-  background: #222;
+  background: var(--white);
+  color: var(--ink);
   display: grid;
   place-items: center;
-  font-size: 18px;
+  font-size: 12px;
+  font-weight: 800;
   flex-shrink: 0;
 }
-.ck-product h2 {
-  margin: 0 0 4px;
-  font-size: 16px;
-  font-weight: 700;
-}
-.ck-product p {
-  margin: 0;
-  color: var(--ck-muted);
-  font-size: 13px;
-  line-height: 1.45;
-}
+.ck-product h2 { margin: 0 0 4px; font-size: 16px; }
+.ck-product p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.45; }
 .ck-product-price {
   margin-left: auto;
   font-weight: 700;
@@ -139,27 +170,17 @@ body.ck-body {
 .ck-annual {
   margin-top: 16px;
   padding-top: 14px;
-  border-top: 1px solid var(--ck-line);
+  border-top: 1px solid var(--line);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   font-size: 13px;
 }
-.ck-switch {
-  position: relative;
-  width: 42px;
-  height: 24px;
-  flex-shrink: 0;
-}
+.ck-switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
 .ck-switch input { opacity: 0; width: 0; height: 0; }
 .ck-switch span {
-  position: absolute;
-  inset: 0;
-  background: #333;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: 0.2s;
+  position: absolute; inset: 0; background: #333; border-radius: 999px; cursor: pointer;
 }
 .ck-switch span::after {
   content: "";
@@ -173,41 +194,18 @@ body.ck-body {
 .ck-switch input:checked + span { background: #fff; }
 .ck-switch input:checked + span::after { transform: translateX(18px); background: #111; }
 
-.ck-plan-pills {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-.ck-plan-pills button {
-  border: 1px solid var(--ck-line);
-  background: transparent;
-  color: var(--ck-muted);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font: inherit;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.ck-plan-pills button.active {
-  background: #fff;
-  color: #111;
-  border-color: #fff;
-}
-
 .ck-breakdown { margin-top: auto; }
 .ck-row {
   display: flex;
   justify-content: space-between;
   gap: 16px;
   font-size: 14px;
-  color: var(--ck-muted);
+  color: var(--muted);
   padding: 8px 0;
 }
 .ck-row strong { color: #fff; font-weight: 600; }
 .ck-row.total {
-  border-top: 1px solid var(--ck-line);
+  border-top: 1px solid var(--line);
   margin-top: 8px;
   padding-top: 16px;
   font-size: 16px;
@@ -216,7 +214,7 @@ body.ck-body {
 .ck-row.total strong { font-size: 20px; font-weight: 800; }
 
 .ck-right {
-  background: var(--ck-white);
+  background: var(--white);
   padding: 48px 56px;
   display: flex;
   flex-direction: column;
@@ -224,18 +222,14 @@ body.ck-body {
   width: 100%;
   margin: 0 auto;
 }
-
 .ck-right h1 {
   font-size: 22px;
   margin: 0 0 20px;
   letter-spacing: -0.02em;
 }
 
-.ck-express {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 18px;
-}
+.ck-express { display: grid; gap: 10px; margin-bottom: 18px; }
+
 .ck-btn {
   appearance: none;
   border: 0;
@@ -250,18 +244,12 @@ body.ck-body {
   justify-content: center;
   gap: 10px;
   width: 100%;
-  transition: opacity 0.15s, transform 0.15s;
 }
 .ck-btn:disabled { opacity: 0.55; cursor: not-allowed; }
-.ck-btn:not(:disabled):hover { transform: translateY(-1px); }
-.ck-btn-paypal { background: #ffc439; color: #003087; }
-.ck-btn-rzp { background: var(--ck-rzp); color: #fff; }
+.ck-btn-paypal { background: #ffc439; color: var(--pp-blue); }
+.ck-btn-rzp { background: var(--rzp); color: #fff; }
 .ck-btn-dark { background: #111; color: #fff; }
-.ck-btn-ghost {
-  background: #fff;
-  border: 1px solid var(--ck-border);
-  color: #111;
-}
+.ck-logo { height: 20px; width: auto; display: block; }
 
 .ck-or {
   display: flex;
@@ -277,7 +265,7 @@ body.ck-body {
   content: "";
   flex: 1;
   height: 1px;
-  background: var(--ck-border);
+  background: var(--border);
 }
 
 .ck-label {
@@ -288,27 +276,26 @@ body.ck-body {
 }
 .ck-input {
   width: 100%;
-  border: 1px solid var(--ck-border);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 14px 14px;
+  padding: 14px;
   font: inherit;
   font-size: 15px;
   margin-bottom: 18px;
-  background: #fff;
 }
-.ck-input:focus {
-  outline: 2px solid #111;
-  outline-offset: 1px;
-}
+.ck-input:focus { outline: 2px solid #111; outline-offset: 1px; }
 
 .ck-card-box {
-  border: 1px solid var(--ck-border);
+  border: 1px solid var(--border);
   border-radius: 10px;
   padding: 14px 16px;
-  background: var(--ck-soft);
+  background: var(--soft);
   margin-bottom: 14px;
   font-size: 14px;
   color: #444;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .ck-card-box strong { color: #111; }
 
@@ -331,10 +318,11 @@ body.ck-body {
 .ck-powered {
   margin-top: 24px;
   display: flex;
-  gap: 14px;
+  gap: 16px;
   align-items: center;
   font-size: 12px;
   color: #999;
+  flex-wrap: wrap;
 }
 .ck-status {
   margin-top: 14px;
@@ -345,14 +333,11 @@ body.ck-body {
 .ck-status.error { color: #b42318; }
 .ck-status.ok { color: #027a48; }
 
-.ck-success {
-  text-align: center;
-  padding: 24px 0;
-}
+.ck-success { text-align: center; padding: 24px 0; }
 .ck-success .ck-key {
   font-family: ui-monospace, monospace;
-  background: var(--ck-soft);
-  border: 1px solid var(--ck-border);
+  background: var(--soft);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 12px;
   margin: 16px 0;

@@ -3,61 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Terms of Service — Fenwick Labs</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <title>Terms of Service — Claude Enhancer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
+<body class="legal-page">
   <header class="site-header">
-    <div class="container">
-      <a href="/" class="logo">
-        <div class="logo-icon">FL</div>
-        <span>Fenwick Labs</span>
-      </a>
-      <div style="display: flex; gap: 14px; align-items: center;">
-        <a href="/" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Pricing</a>
-        <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500;">Manage Subscription</a>
-      </div>
+    <div class="wrap header-inner">
+      <a class="brand" href="/"><span class="brand-mark">CE</span><span>Claude Enhancer</span></a>
+      <a class="btn btn-ghost" href="/">Home</a>
     </div>
   </header>
+  <div class="wrap">
+    <article class="legal-card">
+      <h1>Terms of Service</h1>
+      <p class="meta">Effective 7 September 2026 · Fenwick Labs (Mangesh Madhavrao Lokade, sole proprietor)</p>
 
-  <main class="container" style="padding-top: 40px; padding-bottom: 80px; max-width: 800px;">
-    <div class="card" style="padding: 40px; text-align: left; line-height: 1.8; color: var(--text-main);">
-      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 8px;">Terms of Service</h1>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 30px;">Last updated: August 2026</p>
+      <h2>1. Agreement</h2>
+      <p>By installing Claude Enhancer or purchasing Pro, you agree to these Terms. If you do not agree, uninstall the extension and do not purchase.</p>
 
-      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">1. Agreement to Terms</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        By accessing or using Fenwick Labs browser extensions and software services (including Job Fit Check, HirePilot AI, SoundBlast, Tempo Controller, and Chat Assistant Enhancer), you agree to be bound by these Terms of Service.
-      </p>
+      <h2>2. License</h2>
+      <p>We grant a limited, non-exclusive, non-transferable license to use Claude Enhancer for personal or internal business productivity with Claude.ai.</p>
+      <ul>
+        <li><strong>Free:</strong> limited PDF, summary, ZIP, and folders as shown on the pricing page.</li>
+        <li><strong>Pro:</strong> unlimited exports and folders for one billing email, maximum two Chrome profiles.</li>
+      </ul>
 
-      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">2. Payments & Merchant of Record</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        Payments are processed via Paddle.com (Merchant of Record) and PayPal. The accepted method is shown at checkout based on your region and preference. Paddle and PayPal provide customer service inquiries and handle returns, billing, and payment processing.
-      </p>
+      <h2>3. Payments</h2>
+      <p>Pro is sold at <strong>$4/month</strong>, <strong>$40/year</strong>, or <strong>$80 lifetime</strong> (USD), plus <strong>18% GST</strong> at checkout. Payments are processed only by <strong>PayPal</strong> and <strong>Razorpay</strong>. Card data entered in Razorpay Checkout never touches our servers.</p>
+      <p>Pro is bound to the verified billing email. Monthly and yearly access ends on the stated expiry unless renewed. Lifetime does not expire.</p>
 
-      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">3. Subscriptions & Billing</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        Paid plans (Fenwick Labs Pro Monthly, Pro Yearly, and Lifetime Access) grant access to premium features across all extensions. Subscriptions renew automatically unless canceled before the next billing cycle. You may cancel at any time via your self-service account portal.
-      </p>
+      <h2>4. Acceptable use</h2>
+      <ul>
+        <li>Do not resell, share, or publicly distribute license keys.</li>
+        <li>Do not bypass entitlement or device limits.</li>
+        <li>Do not use the Software unlawfully or against Anthropic’s Claude.ai terms.</li>
+      </ul>
 
-      <h2 style="font-size: 1.2rem; font-weight: 700; margin-top: 24px; margin-bottom: 8px;">4. Business Information & Contact</h2>
-      <p style="color: var(--text-muted); font-size: 0.95rem;">
-        For support or inquiries regarding these Terms, contact us:<br /><br />
-        <strong>Legal Name:</strong> Mangesh Madhavrao Lokade, sole proprietor<br />
-        <strong>Business Address:</strong> Taroda Bk, Nanded, Maharashtra 431605, India<br />
-        <strong>Contact Email:</strong> <a href="mailto:mangesh.lokade.dev@gmail.com" style="color: var(--primary);">mangesh.lokade.dev@gmail.com</a> / <a href="mailto:support@fenwicklabs.com" style="color: var(--primary);">support@fenwicklabs.com</a>
-      </p>
-    </div>
-  </main>
+      <h2>5. Disclaimer</h2>
+      <p>The Software is provided “as is” without warranties of uninterrupted operation. Claude.ai is operated by Anthropic; we are an independent companion product.</p>
 
-  <footer class="site-footer">
-    <div class="container">
-      <p>© <span id="year"></span> Fenwick Labs. All rights reserved.</p>
-    </div>
-  </footer>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+      <h2>6. Contact</h2>
+      <p>support@fenwicklabs.com · mangesh.lokade.dev@gmail.com · Taroda Bk, Nanded, Maharashtra 431605, India</p>
+    </article>
+  </div>
 </body>
 </html>

@@ -3,287 +3,312 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pricing & Plans — Fenwick Labs Pro</title>
-  <meta name="description" content="Unlock premium power across all Fenwick Labs browser extensions with Fenwick Labs Pro." />
-  
-  <!-- Inter Font -->
+  <title>Claude Enhancer — Pro companion for Claude.ai</title>
+  <meta name="description" content="Claude Enhancer adds prompt glow, folders, notes, PDF/ZIP/summary exports. Free limits. Pro from $4/mo + GST via PayPal or Razorpay." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  
-  <!-- Stylesheet -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Header -->
   <header class="site-header">
-    <div class="container">
-      <a href="/" class="logo">
-        <div class="logo-icon">FL</div>
-        <span>Fenwick Labs</span>
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">CE</span>
+        <span>Claude Enhancer</span>
       </a>
-      <div style="display: flex; gap: 14px; align-items: center;">
-        <a href="/account" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: color 0.2s;">
-          👤 Manage Subscription
-        </a>
-        <div class="nav-badge">PayPal · Razorpay</div>
-      </div>
+      <nav class="nav" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#how">How it works</a>
+        <a href="#faq">FAQ</a>
+        <a href="support.html">Support</a>
+      </nav>
+      <a class="btn btn-white" href="checkout.html?cycle=yearly">Get Pro</a>
     </div>
   </header>
 
-  <main class="container">
-    <!-- Hero Section -->
+  <main>
     <section class="hero">
-      <div class="badge-tag">
-        <span class="badge-dot"></span>
-        <span>All-In-One Browser Extension Suite</span>
-      </div>
-      <h1>Simple, transparent pricing for <br /><span class="gradient-text">every power user</span></h1>
-      <p class="hero-subtitle">
-        One subscription unlocks Pro capabilities across all Fenwick Labs extensions. Includes a 15-day free trial on recurring plans.
-      </p>
-
-      <!-- Extension Showcase -->
-      <div class="extensions-pill-row">
-        <span class="ext-pill">✨ Job Fit Check</span>
-        <span class="ext-pill">🤖 HirePilot AI</span>
-        <span class="ext-pill">🔊 SoundBlast Booster</span>
-        <span class="ext-pill">⚡ Tempo Controller</span>
-        <span class="ext-pill">💬 Chat Assistant Enhancer</span>
-      </div>
-
-      <!-- Billing Cycle Toggle -->
-      <div class="toggle-wrapper">
-        <span id="monthly-label" class="billing-label">Monthly billing</span>
-        <label class="switch" for="billing-toggle">
-          <input type="checkbox" id="billing-toggle" checked />
-          <span class="slider"></span>
-        </label>
-        <span id="yearly-label" class="billing-label active">
-          Annual billing <span class="discount-badge">Save ~35%</span>
-        </span>
+      <div class="wrap hero-grid">
+        <div>
+          <p class="eyebrow">Chrome extension for Claude.ai</p>
+          <h1>Organize, export, and glow — without leaving Claude.</h1>
+          <p class="hero-lead">
+            Claude Enhancer is a Manifest V3 companion: prompt glow, folders, notes, PDF and ZIP exports, and summary briefs.
+            Free to start. Pro unlocks unlimited exports and folders.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-white btn-lg" href="checkout.html?cycle=yearly">Upgrade to Pro</a>
+            <a class="btn btn-ghost btn-lg" href="#features">See features</a>
+          </div>
+        </div>
+        <aside class="hero-panel" aria-label="Official pricing">
+          <h2>Official Pro pricing (USD)</h2>
+          <div class="price-list">
+            <div class="price-row">
+              <span>Monthly</span>
+              <strong>$4<small> / mo</small></strong>
+            </div>
+            <div class="price-row">
+              <span>Yearly</span>
+              <strong>$40<small> / yr</small></strong>
+            </div>
+            <div class="price-row">
+              <span>Lifetime</span>
+              <strong>$80<small> once</small></strong>
+            </div>
+          </div>
+          <p class="price-note">+ 18% GST at checkout. Same amounts on the payment page. PayPal (USD) or Razorpay (INR cards / UPI).</p>
+        </aside>
       </div>
     </section>
 
-    <!-- Accepted Payment Methods -->
-    <div class="payment-methods-bar">
-      <span class="pm-title">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-        Accepted payment methods:
-      </span>
-      <span class="pm-pill">PayPal</span>
-      <span class="pm-pill">Razorpay</span>
-      <span class="pm-pill">Credit / Debit Cards</span>
-      <span class="pm-pill">UPI</span>
-    </div>
-
-    <!-- Real-time Localization & Global Payment Methods Banner -->
-    <div class="localization-banner" id="localization-banner">
-      <div class="loc-left">
-        <span>🌐 USD + INR checkout · GST included</span>
-        <span class="loc-badge" id="loc-country-badge">$4 / $40 / $80</span>
-      </div>
-      <div class="loc-right">
-        <span>💳 PayPal · Razorpay Cards · UPI</span>
-      </div>
-    </div>
-
-    <!-- Pricing Cards Grid -->
-    <div class="pricing-grid">
-      <!-- Free Plan -->
-      <div class="pricing-card">
-        <div class="card-header">
-          <h3 class="card-title">Starter</h3>
-          <p class="card-desc">Essential utilities for casual extension users.</p>
+    <section class="section" id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Everything the extension ships</h2>
+          <p>Built for daily Claude work — polished Free tier, clear Pro unlocks.</p>
         </div>
-        <div class="card-price-block">
-          <div class="price-row">
-            <span class="price-amount">$0</span>
-            <span class="price-period">/ forever</span>
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            </div>
+            <h3>Prompt Glow</h3>
+            <p>Logo-synced glow on the composer. Clockwise, counter, and soft breath motions with typing that eases out when you stop.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h7l2 2h9v10a2 2 0 0 1-2 2H3z"/></svg>
+            </div>
+            <h3>Folders</h3>
+            <p>Group chats into folders, add the current chat in one tap, export folder PDFs or code as ZIP.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8z"/><path d="M14 2v6h6"/></svg>
+            </div>
+            <h3>PDF &amp; Summary</h3>
+            <p>Export full chat PDFs or concise summary PDFs (goals, outcomes, highlights) ready to share.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+            </div>
+            <h3>Project &amp; Code ZIP</h3>
+            <p>Pack PDF + summary + markdown + code files into one project ZIP, or export code-only archives.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+            </div>
+            <h3>Notes workspace</h3>
+            <p>Scratchpad and chat-linked notes inside the panel so ideas stay next to the conversation.</p>
+          </article>
+          <article class="feature">
+            <div class="feature-ico" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </div>
+            <h3>Tools &amp; sandbox</h3>
+            <p>Markdown export, rename helpers, personas, live HTML sandbox, and trim tools for power users.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="band-light">
+      <div class="section" style="border-bottom:0">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Free vs Pro</h2>
+            <p>Transparent limits. Same numbers everywhere — home and checkout.</p>
           </div>
-          <div class="price-subtext">No credit card required</div>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Capability</th>
+                <th>Free</th>
+                <th>Pro</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>PDF exports / month</td>
+                <td>5</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <td>Summary exports / month</td>
+                <td>10</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <td>ZIP exports / month</td>
+                <td>2</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <td>Folders</td>
+                <td>3</td>
+                <td>Unlimited</td>
+              </tr>
+              <tr>
+                <td>Prompt Glow</td>
+                <td>Included</td>
+                <td>Included</td>
+              </tr>
+              <tr>
+                <td>Chrome profiles per email</td>
+                <td>—</td>
+                <td>2</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <ul class="features-list">
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Basic features in all extensions</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>5 AI analyses / day</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Standard audio presets</span>
-          </li>
-          <li class="disabled">
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            <span>Unlimited AI & automated autofill</span>
-          </li>
-          <li class="disabled">
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            <span>Priority customer support</span>
-          </li>
-        </ul>
-        <button class="btn-checkout btn-secondary" onclick="alert('You are already using Starter features in your browser extensions!')">
-          Active Plan
-        </button>
       </div>
+    </section>
 
-      <!-- Pro Plan (Featured) -->
-      <div class="pricing-card featured" id="pro-card">
-        <div class="featured-ribbon">Most Popular</div>
-        <div class="card-header">
-          <h3 class="card-title">Fenwick Labs Pro</h3>
-          <p class="card-desc">Complete unlocked access across all extensions.</p>
+    <section class="section" id="pricing">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>Choose a plan</h2>
+          <p>$4 monthly · $40 yearly · $80 lifetime. GST 18% added on the payment page only — base prices match checkout.</p>
         </div>
-        <div class="card-price-block">
-          <div class="price-row">
-            <span class="price-amount" id="pro-price-display">$40.00</span>
-            <span class="price-period" id="pro-period-display">/ year</span>
+        <div class="pricing-grid">
+          <article class="plan">
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">$4 <small>/ mo</small></div>
+            <p class="muted">Due today with GST: $4.72</p>
+            <ul class="plan-list">
+              <li>Unlimited PDF, summary, ZIP</li>
+              <li>Unlimited folders</li>
+              <li>Ends after 30 days unless renewed</li>
+              <li>Email-bound Pro license</li>
+            </ul>
+            <a class="btn btn-ghost btn-block" href="checkout.html?cycle=monthly">Pay monthly</a>
+          </article>
+          <article class="plan featured">
+            <div class="plan-name">Yearly</div>
+            <div class="plan-price">$40 <small>/ yr</small></div>
+            <p class="muted">Due today with GST: $47.20 · best value</p>
+            <ul class="plan-list">
+              <li>Everything in Monthly</li>
+              <li>One yearly renewal cycle</li>
+              <li>Reminder email before expiry</li>
+              <li>Max 2 Chrome profiles</li>
+            </ul>
+            <a class="btn btn-white btn-block" href="checkout.html?cycle=yearly">Pay yearly</a>
+          </article>
+          <article class="plan">
+            <div class="plan-name">Lifetime</div>
+            <div class="plan-price">$80 <small>once</small></div>
+            <p class="muted">Due today with GST: $94.40</p>
+            <ul class="plan-list">
+              <li>Everything in Pro</li>
+              <li>No renewal date</li>
+              <li>Still limited to 2 profiles</li>
+              <li>Same email activation</li>
+            </ul>
+            <a class="btn btn-ghost btn-block" href="checkout.html?cycle=lifetime">Pay lifetime</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>How Pro activates</h2>
+          <p>Secure gateways only. Card data never hits our servers.</p>
+        </div>
+        <div class="steps">
+          <div class="step">
+            <h3>Open checkout</h3>
+            <p>From the extension Upgrade tab you land directly on the payment page — not the home page.</p>
           </div>
-          <div class="price-subtext" id="pro-trial-display">+ 18% GST · PayPal or Razorpay</div>
-        </div>
-        <ul class="features-list">
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <strong>Unlimited Job Fit Check & Resume scoring</strong>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <strong>HirePilot AI automated autofill</strong>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>SoundBlast & Tempo controller pro modes</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Chat Assistant Enhancer unlimited sync</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Instant sync across all Chrome profiles</span>
-          </li>
-        </ul>
-        <a id="btn-buy-pro" class="btn-checkout btn-primary" href="/checkout.html?cycle=yearly">
-          Upgrade with PayPal / Razorpay
-        </a>
-      </div>
-
-      <!-- Lifetime Plan -->
-      <div class="pricing-card">
-        <div class="card-header">
-          <h3 class="card-title">Lifetime Access</h3>
-          <p class="card-desc">Pay once, own all current and future extensions forever.</p>
-        </div>
-        <div class="card-price-block">
-          <div class="price-row">
-            <span class="price-amount" id="lifetime-price-display">$80.00</span>
-            <span class="price-period">/ one-time</span>
+          <div class="step">
+            <h3>Pay with PayPal or Razorpay</h3>
+            <p>USD via PayPal, or INR cards / UPI via Razorpay. Prices include 18% GST.</p>
           </div>
-          <div class="price-subtext">+ 18% GST · lifetime on your email</div>
-        </div>
-        <ul class="features-list">
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>All Pro features in every extension</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>All future extension releases included</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Unlimited AI usage and priority servers</span>
-          </li>
-          <li>
-            <svg class="feature-icon" width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span>Dedicated VIP support channel</span>
-          </li>
-        </ul>
-        <a id="btn-buy-lifetime" class="btn-checkout btn-secondary" href="/checkout.html?cycle=lifetime">
-          Get Lifetime Access
-        </a>
-      </div>
-    </div>
-
-    <!-- Sandbox Test Notice Box -->
-    <div class="sandbox-alert">
-      <div>🧪</div>
-      <div>
-        <strong>Secure checkout:</strong> Pay with PayPal (USD) or Razorpay (INR cards/UPI). Prices are $4/mo, $40/yr, or $80 lifetime plus 18% GST. Pro unlocks on your billing email (max 2 Chrome profiles).
-      </div>
-    </div>
-
-    <!-- Guarantees & Features -->
-    <div class="guarantee-grid">
-      <div class="guarantee-item">
-        <div class="guarantee-icon">🛡️</div>
-        <h4>PayPal & Razorpay Processing</h4>
-        <p>Payments are processed via PayPal and Razorpay only. Card details stay on Razorpay’s secure checkout — never on our servers.</p>
-      </div>
-      <div class="guarantee-item">
-        <div class="guarantee-icon">⚡</div>
-        <h4>Instant Activation</h4>
-        <p>Your license key and Pro access are activated immediately after checkout.</p>
-      </div>
-      <div class="guarantee-item">
-        <div class="guarantee-icon">🔄</div>
-        <h4>Cancel Anytime</h4>
-        <p>Easily manage or cancel your subscription with 1-click customer portal access.</p>
-      </div>
-    </div>
-
-    <!-- Business Details & Contact Section (PayPal / Merchant Verification) -->
-    <section id="contact" style="margin-top: 50px; padding: 32px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); backdrop-filter: blur(16px); box-shadow: var(--shadow-card);">
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; align-items: start;">
-        <div>
-          <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-            🏢 Business & Legal Information
-          </h3>
-          <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6;">
-            <strong>Fenwick Labs</strong> is operated by <strong>Mangesh Madhavrao Lokade, sole proprietor</strong>.
-          </p>
-          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.875rem; color: var(--text-muted);">
-            <div><strong>Business address:</strong> Taroda Bk, Nanded, Maharashtra 431605, India</div>
-            <div><strong>Legal name:</strong> Mangesh Madhavrao Lokade, sole proprietor</div>
-            <div><strong>Contact email:</strong> <a href="mailto:mangesh.lokade.dev@gmail.com" style="color: var(--primary); text-decoration: none;">mangesh.lokade.dev@gmail.com</a></div>
-            <div><strong>Support desk:</strong> <a href="mailto:support@fenwicklabs.com" style="color: var(--text-main); text-decoration: none;">support@fenwicklabs.com</a></div>
+          <div class="step">
+            <h3>Email verified</h3>
+            <p>We bind Pro to the billing email after the gateway confirms payment.</p>
+          </div>
+          <div class="step">
+            <h3>Sign in on Claude</h3>
+            <p>Use that same email in the extension. Pro unlocks on up to two Chrome profiles.</p>
           </div>
         </div>
-        <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 22px;">
-          <h4 style="font-size: 1rem; font-weight: 600; color: var(--text-main); margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">
-            💳 Payments & Billing
-          </h4>
-          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin: 0;">
-            Payments are processed via <strong>PayPal</strong> and <strong>Razorpay</strong> (cards / UPI). GST (18%) is added at checkout.
-          </p>
+      </div>
+    </section>
+
+    <section class="section" id="faq">
+      <div class="wrap">
+        <div class="section-head">
+          <h2>FAQ</h2>
+          <p>Clear answers before you pay.</p>
+        </div>
+        <div class="faq">
+          <details>
+            <summary>Why do home and checkout show different totals?</summary>
+            <p>They do not for base price: Monthly $4, Yearly $40, Lifetime $80. Checkout adds 18% GST so the total due is higher ($4.72 / $47.20 / $94.40). That is intentional and shown on the payment page.</p>
+          </details>
+          <details>
+            <summary>Which payment methods are supported?</summary>
+            <p>PayPal and Razorpay only. Razorpay hosts the card form; we never store card numbers.</p>
+          </details>
+          <details>
+            <summary>What happens when my month ends?</summary>
+            <p>Pro deactivates on the expiry date. We email a renewal reminder beforehand. Lifetime does not expire.</p>
+          </details>
+          <details>
+            <summary>Can I share one Pro email across many browsers?</summary>
+            <p>No. Each paid email is limited to two Chrome profiles to protect paying customers.</p>
+          </details>
         </div>
       </div>
     </section>
   </main>
 
-  <footer class="site-footer" style="padding: 30px 0; border-top: 1px solid var(--border-color); margin-top: 50px;">
-    <div class="container" style="display: flex; flex-direction: column; gap: 14px; align-items: center; text-align: center;">
-      <div style="display: flex; flex-wrap: wrap; gap: 18px; justify-content: center; font-size: 0.88rem;">
-        <a href="/terms.html" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
-        <span style="color: var(--border-color);">•</span>
-        <a href="/privacy.html" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
-        <span style="color: var(--border-color);">•</span>
-        <a href="/refund.html" style="color: var(--text-muted); text-decoration: none;">Refund & Cancellation Policy</a>
-        <span style="color: var(--border-color);">•</span>
-        <a href="/account" style="color: var(--text-muted); text-decoration: none;">Customer Portal</a>
-        <span style="color: var(--border-color);">•</span>
-        <a href="#contact" style="color: var(--text-muted); text-decoration: none;">Contact: mangesh.lokade.dev@gmail.com</a>
+  <footer class="site-footer">
+    <div class="wrap">
+      <div class="footer-grid">
+        <div>
+          <a class="brand" href="/" style="margin-bottom:14px">
+            <span class="brand-mark">CE</span>
+            <span>Claude Enhancer</span>
+          </a>
+          <p>Fenwick Labs · Mangesh Madhavrao Lokade, sole proprietor · Taroda Bk, Nanded, Maharashtra 431605, India</p>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="checkout.html">Checkout</a>
+        </div>
+        <div>
+          <h4>Legal</h4>
+          <a href="terms.html">Terms of Service</a>
+          <a href="privacy.html">Privacy Policy</a>
+          <a href="refund.html">Refund Policy</a>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <a href="support.html">Help &amp; license</a>
+          <a href="mailto:support@fenwicklabs.com">support@fenwicklabs.com</a>
+          <a href="mailto:mangesh.lokade.dev@gmail.com">mangesh.lokade.dev@gmail.com</a>
+        </div>
       </div>
-      <p style="font-size: 0.8rem; color: var(--text-dim); margin: 0;">
-        © <span id="year"></span> Fenwick Labs · Legal Name: Mangesh Madhavrao Lokade (Sole Proprietor) · Taroda Bk, Nanded, Maharashtra 431605, India. Payments via PayPal &amp; Razorpay.
-      </p>
+      <div class="footer-bottom">
+        <span>© <span id="year"></span> Claude Enhancer · Fenwick Labs. Payments via PayPal &amp; Razorpay.</span>
+        <div class="pay-logos" aria-label="Payment providers">
+          <svg viewBox="0 0 100 32" role="img" aria-label="PayPal"><title>PayPal</title><text x="0" y="22" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="20" fill="#ffffff">PayPal</text></svg>
+          <svg viewBox="0 0 110 32" role="img" aria-label="Razorpay"><title>Razorpay</title><text x="0" y="22" font-family="Inter,Arial,sans-serif" font-weight="700" font-size="20" fill="#ffffff">Razorpay</text></svg>
+        </div>
+      </div>
     </div>
   </footer>
-
-  <!-- Application Logic -->
-  <script src="app.js"></script>
+  <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
 </body>
 </html>
