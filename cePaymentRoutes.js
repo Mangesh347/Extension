@@ -161,36 +161,87 @@ function allowSimulated() {
 async function recordEntitlement({ email, paymentId, provider, cycle, amount, currency, license, expires, gst, subtotal, test }) {
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key || !email) return;
-  await fetch(`${url}/rest/v1/entitlement_events`, {
-    method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      event_type: "payment_captured",
-      payment_id: paymentId,
-      email_hash: hashEmail(email),
-      status: "active",
-      metadata: {
-        provider,
-        plan: "pro",
-        cycle,
-        amount,
-        currency,
-        gst,
-        subtotal,
-        licenseKey: license,
-        expiresAt: expires,
-        email: String(email).toLowerCase().trim(),
-        paymentMode: test ? "test" : "live",
-        activatedAt: new Date().toISOString()
+  if (!url || !key || !email) {
+    console.warn("[CE Pay] entitlement skip — missing SUPABASE_URL / SERVICE_ROLE_KEY / email");
+    // #region agent log
+    fetch("http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a325af" },
+      body: JSON.stringify({
+        sessionId: "a325af",
+        runId: "pro-unlock",
+        hypothesisId: "P2",
+        location: "cePaymentRoutes.js:recordEntitlement",
+        message: "Entitlement write skipped",
+        data: { hasUrl: !!url, hasKey: !!key, hasEmail: !!email, provider },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion
+    return { ok: false, skipped: true };
+  }
+  try {
+    const res = await fetch(`${url}/rest/v1/entitlement_events`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
       },
-      created_at: new Date().toISOString()
-    })
-  }).catch((e) => console.warn("[CE Pay] entitlement:", e.message));
+      body: JSON.stringify({
+        event_type: "payment_captured",
+        payment_id: paymentId,
+        email_hash: hashEmail(email),
+        status: "active",
+        metadata: {
+          provider,
+          plan: "pro",
+          cycle,
+          amount,
+          currency,
+          gst,
+          subtotal,
+          licenseKey: license,
+          expiresAt: expires,
+          email: String(email).toLowerCase().trim(),
+          paymentMode: test ? "test" : "live",
+          activatedAt: new Date().toISOString()
+        },
+        created_at: new Date().toISOString()
+      })
+    });
+    // #region agent log
+    fetch("http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "a325af" },
+      body: JSON.stringify({
+        sessionId: "a325af",
+        runId: "pro-unlock",
+        hypothesisId: "P2",
+        location: "cePaymentRoutes.js:recordEntitlement",
+        message: "Entitlement write result",
+        data: {
+          ok: res.ok,
+          status: res.status,
+          provider,
+          email: String(email).toLowerCase().trim().replace(/^(.{2}).*(@.*)$/, "$1***$2"),
+          cycle
+        },
+        timestamp: Date.now()
+      })
+    }).catch(() => {});
+    // #endregion
+    if (!res.ok) {
+      const t = await res.text().catch(() => "");
+      console.warn("[CE Pay] entitlement insert failed:", res.status, t.slice(0, 200));
+      return { ok: false, status: res.status };
+    }
+    return { ok: true };
+  } catch (e) {
+    console.warn("[CE Pay] entitlement:", e.message);
+    return { ok: false, error: e.message };
+  }
 }
 
 function mountCePayments(app) {

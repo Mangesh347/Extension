@@ -5,6 +5,7 @@ const db = require('./db');
 const { verifyPaddleSignature, processWebhookEvent, isPaddleIpAllowed } = require('./webhookHandler');
 const { createCustomerPortalSession } = require('./portalService');
 const { mountCePayments } = require('./cePaymentRoutes');
+const { mountCeEntitlements } = require('./ceEntitlementRoutes');
 
 dotenv.config();
 
@@ -82,6 +83,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Claude Enhancer Pro — PayPal + Razorpay (+ GST) checkout APIs
 mountCePayments(app);
+// Email-bound Pro token / access (must be before catch-all *)
+mountCeEntitlements(app);
 
 // ---------------- 2. CLIENT CONFIG ENDPOINT ----------------
 // Safe public config (Client Token & Price IDs only — NO API Keys or Signing Secrets)
@@ -121,38 +124,8 @@ app.get('/api/config', (req, res) => {
   });
 });
 
-// ---------------- 3. ACCESS / ENTITLEMENT DECISION API ----------------
-// Helper to decide if user has active paid access
-app.get('/api/user/access', (req, res) => {
-  const email = req.query.email;
-  const customerId = req.query.customerId;
-
-  let customer = null;
-  if (customerId) {
-    customer = db.getCustomer(customerId);
-  } else if (email) {
-    customer = db.getCustomerByEmail(email);
-  }
-
-  if (!customer) {
-    return res.json({
-      hasAccess: false,
-      plan: 'free',
-      status: 'unregistered',
-      message: 'No customer account found with the given identifier'
-    });
-  }
-
-  const access = db.hasActiveAccess(customer.customer_id);
-  res.json({
-    customer: {
-      id: customer.customer_id,
-      email: customer.email,
-      name: customer.name
-    },
-    ...access
-  });
-});
+// ---------------- 3. ACCESS / ENTITLEMENT — see mountCeEntitlements() above
+// (legacy Paddle DB stub removed; Pro is email_hash in Supabase entitlement_events)
 
 // ---------------- 4. CUSTOMER PORTAL SESSION ENDPOINT ----------------
 // Mints an authenticated Paddle Customer Portal session URL
