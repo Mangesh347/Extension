@@ -333,10 +333,6 @@ body.ck-body {
 }
 .ck-card-box .ck-brand-logo { height: 22px; flex-shrink: 0; }
 .ck-card-box strong { color: #111; }
-  align-items: center;
-  gap: 12px;
-}
-.ck-card-box strong { color: #111; }
 
 .ck-check {
   display: flex;
