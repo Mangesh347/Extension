@@ -86,16 +86,22 @@ mountCePayments(app);
 // ---------------- 2. CLIENT CONFIG ENDPOINT ----------------
 // Safe public config (Client Token & Price IDs only — NO API Keys or Signing Secrets)
 app.get('/api/config', (req, res) => {
-  const paypalLive = Boolean(process.env.PAYPAL_CLIENT_ID && process.env.PAYPAL_CLIENT_SECRET && process.env.PAYMENT_TEST_MODE !== 'true');
-  const razorpayLive = Boolean(process.env.RAZORPAY_KEY_ID && process.env.RAZORPAY_KEY_SECRET && process.env.PAYMENT_TEST_MODE !== 'true');
+  const { getPaymentCreds, isTestMode } = require('./cePaymentRoutes');
+  const creds = getPaymentCreds();
+  const test = isTestMode();
+  const paypalReady = Boolean(creds.paypal.clientId && creds.paypal.clientSecret);
+  const razorpayReady = Boolean(creds.razorpay.keyId && creds.razorpay.keySecret);
+
   res.json({
-    environment: process.env.PAYMENT_TEST_MODE === 'true' ? 'test' : (process.env.PADDLE_ENVIRONMENT || 'sandbox'),
-    payment_test_mode: process.env.PAYMENT_TEST_MODE === 'true' || (!paypalLive && !razorpayLive),
-    paypal_live: paypalLive,
-    razorpay_live: razorpayLive,
-    paypal_client_id: process.env.PAYPAL_CLIENT_ID || '',
-    paypal_mode: (process.env.PAYPAL_MODE || 'sandbox').toLowerCase(),
-    razorpay_key_id: process.env.RAZORPAY_KEY_ID || '',
+    payment_test_mode: test,
+    payment_mode: creds.label,
+    paypal_live: !test && paypalReady,
+    razorpay_live: !test && razorpayReady,
+    paypal_ready: paypalReady,
+    razorpay_ready: razorpayReady,
+    paypal_client_id: creds.paypal.clientId || '',
+    paypal_mode: creds.paypal.apiMode,
+    razorpay_key_id: creds.razorpay.keyId || '',
     providers: ['paypal', 'razorpay'],
     gst_rate: 0.18,
     plans: {
@@ -108,7 +114,10 @@ app.get('/api/config', (req, res) => {
       proYearly: 40,
       lifetime: 80
     },
-    checkout_url: 'https://extension-six-alpha.vercel.app/checkout.html'
+    checkout_url: 'https://extension-six-alpha.vercel.app/checkout.html',
+    // Flip instructions for ops
+    switch_to_live: 'Set PAYMENT_TEST_MODE=false on Vercel and redeploy',
+    switch_to_test: 'Set PAYMENT_TEST_MODE=true on Vercel and redeploy'
   });
 });
 

@@ -22,8 +22,8 @@
       <h2>Activate Pro</h2>
       <p>Pay on the <a href="checkout.html">checkout page</a>, then open Claude.ai and sign into the extension with the <strong>same billing email</strong>.</p>
 
-      <h2>Test mode</h2>
-      <p>While <code>PAYMENT_TEST_MODE=true</code> (or live keys are missing), checkout simulates payment so you can verify the redirect to Claude Pro without charging a card.</p>
+      <h2>Test vs Live</h2>
+      <p>Vercel holds both TEST and LIVE keys. While <code>PAYMENT_TEST_MODE=true</code>, checkout uses sandbox / <code>rzp_test</code>. When everything works, set <code>PAYMENT_TEST_MODE=false</code> and redeploy to charge live.</p>
 
       <h2>Contact</h2>
       <p><a href="mailto:support@fenwicklabs.com">support@fenwicklabs.com</a><br />

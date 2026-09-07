@@ -1,9 +1,10 @@
 /**
- * Claude Enhancer Pro — PayPal + Razorpay routes (Express / CJS)
- * Mount on Fenwick Extension server. Secrets via env only.
+ * Claude Enhancer Pro — PayPal + Razorpay routes
+ * Dual credentials: keep TEST + LIVE in Vercel; flip PAYMENT_TEST_MODE.
  */
 
 const crypto = require("crypto");
+const path = require("path");
 
 const GST_RATE = 0.18;
 const PLANS = {
@@ -56,7 +57,57 @@ function hashEmail(email) {
   return crypto.createHash("sha256").update(String(email || "").toLowerCase().trim()).digest("hex");
 }
 
-async function recordEntitlement({ email, paymentId, provider, cycle, amount, currency, license, expires, gst, subtotal }) {
+/** true = use sandbox/test keys; false = use live keys */
+function isTestMode() {
+  // Default to TEST until explicitly set false (safer)
+  return String(process.env.PAYMENT_TEST_MODE || "true").toLowerCase() !== "false";
+}
+
+/**
+ * Resolve PayPal + Razorpay credentials for the active mode.
+ * Prefer explicit TEST_/LIVE_ vars; fall back to legacy PAYPAL_* / RAZORPAY_*.
+ */
+function getPaymentCreds() {
+  const test = isTestMode();
+
+  if (test) {
+    return {
+      test: true,
+      label: "test",
+      paypal: {
+        clientId: process.env.PAYPAL_TEST_CLIENT_ID || process.env.PAYPAL_CLIENT_ID || "",
+        clientSecret: process.env.PAYPAL_TEST_CLIENT_SECRET || process.env.PAYPAL_CLIENT_SECRET || "",
+        apiMode: "sandbox",
+        apiBase: "https://api-m.sandbox.paypal.com"
+      },
+      razorpay: {
+        keyId: process.env.RAZORPAY_TEST_KEY_ID || process.env.RAZORPAY_KEY_ID || "",
+        keySecret: process.env.RAZORPAY_TEST_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || ""
+      }
+    };
+  }
+
+  return {
+    test: false,
+    label: "live",
+    paypal: {
+      clientId: process.env.PAYPAL_LIVE_CLIENT_ID || process.env.PAYPAL_CLIENT_ID || "",
+      clientSecret: process.env.PAYPAL_LIVE_CLIENT_SECRET || process.env.PAYPAL_CLIENT_SECRET || "",
+      apiMode: "live",
+      apiBase: "https://api-m.paypal.com"
+    },
+    razorpay: {
+      keyId: process.env.RAZORPAY_LIVE_KEY_ID || process.env.RAZORPAY_KEY_ID || "",
+      keySecret: process.env.RAZORPAY_LIVE_KEY_SECRET || process.env.RAZORPAY_KEY_SECRET || ""
+    }
+  };
+}
+
+function allowSimulated() {
+  return String(process.env.ALLOW_SIMULATED_CHECKOUT || "true").toLowerCase() !== "false";
+}
+
+async function recordEntitlement({ email, paymentId, provider, cycle, amount, currency, license, expires, gst, subtotal, test }) {
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key || !email) return;
@@ -83,6 +134,7 @@ async function recordEntitlement({ email, paymentId, provider, cycle, amount, cu
         licenseKey: license,
         expiresAt: expires,
         email: String(email).toLowerCase().trim(),
+        paymentMode: test ? "test" : "live",
         activatedAt: new Date().toISOString()
       },
       created_at: new Date().toISOString()
@@ -92,7 +144,7 @@ async function recordEntitlement({ email, paymentId, provider, cycle, amount, cu
 
 function mountCePayments(app) {
   app.get("/checkout", (req, res) => {
-    res.sendFile(require("path").join(__dirname, "public", "checkout.html"));
+    res.sendFile(path.join(__dirname, "public", "checkout.html"));
   });
 
   app.post("/api/paypal/create-order", async (req, res) => {
@@ -100,19 +152,22 @@ function mountCePayments(app) {
       const cycle = req.body?.cycle || "yearly";
       const email = String(req.body?.email || "").toLowerCase().trim();
       const quote = quoteUSD(cycle);
-      const clientId = process.env.PAYPAL_CLIENT_ID;
-      const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
-      const mode = (process.env.PAYPAL_MODE || "sandbox").toLowerCase();
-      const apiBase = mode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
+      const creds = getPaymentCreds();
+      const { clientId, clientSecret, apiBase, apiMode } = creds.paypal;
+      const wantSim = req.body?.simulate === true || (!clientId || !clientSecret);
 
-      if (!clientId || !clientSecret || req.body?.test === true || process.env.PAYMENT_TEST_MODE === "true") {
+      if (wantSim) {
+        if (!allowSimulated() && !creds.test) {
+          return res.status(503).json({ error: "PayPal live credentials missing" });
+        }
         return res.json({
           success: true,
           order_id: `SIM_PP_ORDER_${Date.now()}`,
           amount: quote.total.toFixed(2),
           currency: "USD",
           quote,
-          mode: "simulated_preview"
+          mode: "simulated_preview",
+          payment_mode: creds.label
         });
       }
 
@@ -132,13 +187,13 @@ function mountCePayments(app) {
           intent: "CAPTURE",
           purchase_units: [{
             description: `${quote.desc} (incl. GST)`,
-            custom_id: JSON.stringify({ email, plan: "pro", cycle: quote.cycle }),
+            custom_id: JSON.stringify({ email, plan: "pro", cycle: quote.cycle, mode: creds.label }),
             amount: { currency_code: "USD", value: quote.total.toFixed(2) }
           }],
           application_context: {
             brand_name: "Claude Enhancer",
             user_action: "PAY_NOW",
-            return_url: "https://extension-six-alpha.vercel.app/checkout.html?paid=paypal",
+            return_url: `https://extension-six-alpha.vercel.app/checkout.html?paid=paypal&mode=${creds.label}`,
             cancel_url: "https://extension-six-alpha.vercel.app/checkout.html?cancel=1"
           }
         })
@@ -153,7 +208,8 @@ function mountCePayments(app) {
         currency: "USD",
         quote,
         approve_url: approve || null,
-        mode
+        mode: apiMode,
+        payment_mode: creds.label
       });
     } catch (err) {
       console.error(err);
@@ -169,10 +225,11 @@ function mountCePayments(app) {
       const exp = expiresAt(cycle);
       const key = licenseKey();
       const billingEmail = String(email || "").toLowerCase().trim();
-      const clientId = process.env.PAYPAL_CLIENT_ID;
-      const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+      const creds = getPaymentCreds();
+      const { clientId, clientSecret, apiBase } = creds.paypal;
+      const isSim = String(order_id).startsWith("SIM_") || req.body?.simulate === true;
 
-      if (!clientId || !clientSecret || String(order_id).startsWith("SIM_") || req.body?.test === true || process.env.PAYMENT_TEST_MODE === "true") {
+      if (isSim || !clientId || !clientSecret) {
         await recordEntitlement({
           email: billingEmail,
           paymentId: order_id,
@@ -183,7 +240,8 @@ function mountCePayments(app) {
           license: key,
           expires: exp,
           gst: quote.gst,
-          subtotal: quote.subtotal
+          subtotal: quote.subtotal,
+          test: creds.test
         });
         return res.json({
           success: true,
@@ -191,12 +249,11 @@ function mountCePayments(app) {
           email: billingEmail,
           cycle: quote.cycle,
           expiresAt: exp,
+          payment_mode: creds.label,
           redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
         });
       }
 
-      const mode = (process.env.PAYPAL_MODE || "sandbox").toLowerCase();
-      const apiBase = mode === "live" ? "https://api-m.paypal.com" : "https://api-m.sandbox.paypal.com";
       const auth = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
       const tokenRes = await fetch(`${apiBase}/v1/oauth2/token`, {
         method: "POST",
@@ -223,7 +280,8 @@ function mountCePayments(app) {
         license: key,
         expires: exp,
         gst: quote.gst,
-        subtotal: quote.subtotal
+        subtotal: quote.subtotal,
+        test: creds.test
       });
       return res.json({
         success: true,
@@ -231,6 +289,7 @@ function mountCePayments(app) {
         email: payerEmail,
         cycle: quote.cycle,
         expiresAt: exp,
+        payment_mode: creds.label,
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(payerEmail)}`
       });
     } catch (err) {
@@ -243,9 +302,13 @@ function mountCePayments(app) {
       const cycle = req.body?.cycle || "yearly";
       const email = String(req.body?.email || "").toLowerCase().trim();
       const quote = quoteINR(cycle);
-      const keyId = process.env.RAZORPAY_KEY_ID;
-      const keySecret = process.env.RAZORPAY_KEY_SECRET;
-      if (!keyId || !keySecret) {
+      const creds = getPaymentCreds();
+      const { keyId, keySecret } = creds.razorpay;
+
+      if (!keyId || !keySecret || req.body?.simulate === true) {
+        if (!allowSimulated() && !creds.test) {
+          return res.status(503).json({ error: "Razorpay live credentials missing" });
+        }
         return res.json({
           success: true,
           order_id: `order_sim_${Date.now()}`,
@@ -253,16 +316,18 @@ function mountCePayments(app) {
           currency: "INR",
           key_id: keyId || "rzp_test_placeholder",
           quote,
-          mode: "simulated_preview"
+          mode: "simulated_preview",
+          payment_mode: creds.label
         });
       }
+
       const Razorpay = require("razorpay");
       const rzp = new Razorpay({ key_id: keyId, key_secret: keySecret });
       const order = await rzp.orders.create({
         amount: quote.amountPaise,
         currency: "INR",
         receipt: `ce_${quote.cycle}_${Date.now()}`.slice(0, 40),
-        notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro" }
+        notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro", mode: creds.label }
       });
       return res.json({
         success: true,
@@ -270,7 +335,8 @@ function mountCePayments(app) {
         amount: order.amount,
         currency: order.currency,
         key_id: keyId,
-        quote
+        quote,
+        payment_mode: creds.label
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -289,9 +355,15 @@ function mountCePayments(app) {
       if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
         return res.status(400).json({ error: "Missing payment fields" });
       }
-      const keySecret = process.env.RAZORPAY_KEY_SECRET;
-      const forceTest = req.body?.test === true || process.env.PAYMENT_TEST_MODE === "true";
-      if (keySecret && !forceTest && razorpay_signature !== "test_mode") {
+
+      const creds = getPaymentCreds();
+      const { keySecret } = creds.razorpay;
+      const isSim =
+        String(razorpay_order_id).startsWith("order_sim_") ||
+        razorpay_signature === "test_mode" ||
+        req.body?.simulate === true;
+
+      if (!isSim && keySecret) {
         const expected = crypto
           .createHmac("sha256", keySecret)
           .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -302,6 +374,7 @@ function mountCePayments(app) {
           return res.status(400).json({ error: "Invalid signature" });
         }
       }
+
       const quote = quoteINR(cycle);
       const exp = expiresAt(cycle);
       const key = licenseKey();
@@ -316,7 +389,8 @@ function mountCePayments(app) {
         license: key,
         expires: exp,
         gst: quote.gst,
-        subtotal: quote.subtotal
+        subtotal: quote.subtotal,
+        test: creds.test || isSim
       });
       return res.json({
         success: true,
@@ -324,6 +398,7 @@ function mountCePayments(app) {
         email: billingEmail,
         cycle: quote.cycle,
         expiresAt: exp,
+        payment_mode: creds.label,
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
       });
     } catch (err) {
@@ -332,4 +407,4 @@ function mountCePayments(app) {
   });
 }
 
-module.exports = { mountCePayments };
+module.exports = { mountCePayments, getPaymentCreds, isTestMode };

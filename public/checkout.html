@@ -210,10 +210,18 @@
       try {
         const res = await fetch("/api/config");
         const data = await res.json();
-        // Live only when providers report live credentials and PAYMENT_TEST_MODE is not forced
         if (data.payment_test_mode === true || params.get("test") === "1") testMode = true;
-        else if (data.paypal_live || data.razorpay_live) testMode = false;
+        else if (data.payment_mode === "live" || data.paypal_live || data.razorpay_live) testMode = false;
         else testMode = true;
+        // With real TEST keys, banner still shows "test" but payments hit sandbox (not silent sim)
+        const banner = document.getElementById("testBanner");
+        if (banner) {
+          banner.textContent = testMode
+            ? (data.paypal_ready || data.razorpay_ready
+              ? "Test mode — using sandbox / rzp_test keys. No live charges. Flip PAYMENT_TEST_MODE=false on Vercel when ready."
+              : "Test mode — no gateway keys yet; checkout will simulate payment and still redirect to Claude Pro unlock.")
+            : "Live mode — real charges via PayPal / Razorpay.";
+        }
       } catch (_) {
         testMode = true;
       }
@@ -230,12 +238,12 @@
         const res = await fetch("/api/paypal/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cycle, email: e, test: testMode })
+          body: JSON.stringify({ cycle, email: e })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Order failed");
 
-        if (!testMode && data.approve_url) {
+        if (data.approve_url) {
           sessionStorage.setItem("ce_pp_order", JSON.stringify({ order_id: data.order_id, email: e, cycle }));
           location.href = data.approve_url;
           return;
@@ -244,7 +252,7 @@
         const cap = await fetch("/api/paypal/capture-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order_id: data.order_id || ("SIM_PP_" + Date.now()), email: e, cycle, test: testMode })
+          body: JSON.stringify({ order_id: data.order_id || ("SIM_PP_" + Date.now()), email: e, cycle })
         });
         const result = await cap.json();
         if (!cap.ok) throw new Error(result.error || "Capture failed");
@@ -266,12 +274,12 @@
         const res = await fetch("/api/razorpay/create-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ cycle, email: e, test: testMode })
+          body: JSON.stringify({ cycle, email: e })
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Order failed");
 
-        if (testMode || data.mode === "simulated_preview" || String(data.order_id).startsWith("order_sim_")) {
+        if (data.mode === "simulated_preview" || String(data.order_id).startsWith("order_sim_")) {
           const verify = await fetch("/api/razorpay/verify-payment", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -281,7 +289,7 @@
               razorpay_signature: "test_mode",
               email: e,
               cycle,
-              test: true
+              simulate: true
             })
           });
           const result = await verify.json().catch(() => ({}));
