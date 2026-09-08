@@ -1,6 +1,9 @@
 /**
  * Claude Enhancer Pro — PayPal + Razorpay routes
- * PayPal: TEST/LIVE via PAYMENT_TEST_MODE. Razorpay: LIVE keys only (no sim/test).
+ * Both gateways follow PAYMENT_TEST_MODE:
+ *   true  → PayPal sandbox + Razorpay rzp_test_* keys
+ *   false → PayPal live + Razorpay rzp_live_* keys
+ * Prices: $4 / $40 / $80 + 18% GST (matches extension).
  */
 
 const crypto = require("crypto");
@@ -61,33 +64,45 @@ function envTrim(name) {
   const v = process.env[name];
   if (v == null) return "";
   const s = String(v).trim();
-  // Ignore leftover template placeholders from ENV_PASTE.txt
   if (!s || /paste_here|YOUR_PROJECT|xxxxx|optional/i.test(s)) return "";
   return s;
 }
 
-/** true = PayPal sandbox; Razorpay is always LIVE keys for this project */
+/** true = sandbox / test keys for PayPal + Razorpay.
+ * Hard lock: live payments require ALLOW_LIVE_PAYMENTS=true AND PAYMENT_TEST_MODE=false.
+ * Until you flip ALLOW_LIVE_PAYMENTS, everything stays in TEST mode.
+ */
 function isTestMode() {
+  const allowLive = String(process.env.ALLOW_LIVE_PAYMENTS || "false").toLowerCase() === "true";
+  if (!allowLive) return true;
   return String(process.env.PAYMENT_TEST_MODE || "true").toLowerCase() !== "false";
 }
 
 /**
- * PayPal: TEST vs LIVE by PAYMENT_TEST_MODE.
- * Razorpay: LIVE only (RAZORPAY_LIVE_* or RAZORPAY_KEY_*) — no test keys.
+ * Resolve PayPal + Razorpay credentials from PAYMENT_TEST_MODE.
+ * Never returns live Razorpay keys while isTestMode() is true.
  */
 function getPaymentCreds() {
   const test = isTestMode();
 
-  const razorpayKeyId =
-    envTrim("RAZORPAY_LIVE_KEY_ID") ||
-    envTrim("RAZORPAY_KEY_ID") ||
-    "";
-  const razorpayKeySecret =
-    envTrim("RAZORPAY_LIVE_KEY_SECRET") ||
-    envTrim("RAZORPAY_KEY_SECRET") ||
-    "";
-
   if (test) {
+    let razorpayKeyId = envTrim("RAZORPAY_TEST_KEY_ID");
+    let razorpayKeySecret = envTrim("RAZORPAY_TEST_KEY_SECRET");
+
+    // Only accept generic KEY_ID if it is already a test key — never live
+    const genericId = envTrim("RAZORPAY_KEY_ID");
+    const genericSecret = envTrim("RAZORPAY_KEY_SECRET");
+    if (!razorpayKeyId && genericId.startsWith("rzp_test_")) {
+      razorpayKeyId = genericId;
+      razorpayKeySecret = razorpayKeySecret || genericSecret;
+    }
+
+    // Explicitly ignore live keys in test mode (do not fall back)
+    if (razorpayKeyId.startsWith("rzp_live_")) {
+      razorpayKeyId = "";
+      razorpayKeySecret = "";
+    }
+
     return {
       test: true,
       label: "test",
@@ -100,10 +115,20 @@ function getPaymentCreds() {
       razorpay: {
         keyId: razorpayKeyId,
         keySecret: razorpayKeySecret,
-        usingLiveKeys: String(razorpayKeyId).startsWith("rzp_live_")
+        usingLiveKeys: false,
+        usingTestKeys: String(razorpayKeyId).startsWith("rzp_test_")
       }
     };
   }
+
+  const razorpayKeyId =
+    envTrim("RAZORPAY_LIVE_KEY_ID") ||
+    (envTrim("RAZORPAY_KEY_ID").startsWith("rzp_live_") ? envTrim("RAZORPAY_KEY_ID") : "") ||
+    "";
+  const razorpayKeySecret =
+    envTrim("RAZORPAY_LIVE_KEY_SECRET") ||
+    (String(razorpayKeyId).startsWith("rzp_live_") ? envTrim("RAZORPAY_KEY_SECRET") : "") ||
+    "";
 
   return {
     test: false,
@@ -117,17 +142,18 @@ function getPaymentCreds() {
     razorpay: {
       keyId: razorpayKeyId,
       keySecret: razorpayKeySecret,
-      usingLiveKeys: String(razorpayKeyId).startsWith("rzp_live_")
+      usingLiveKeys: String(razorpayKeyId).startsWith("rzp_live_"),
+      usingTestKeys: false
     }
   };
 }
 
-/** Create Razorpay order via REST (no npm razorpay package needed on Vercel) */
+/** Create Razorpay order via REST (test or live key) */
 async function createRazorpayOrderRest({ keyId, keySecret, amountPaise, receipt, notes }) {
   const id = String(keyId || "").trim();
   const secret = String(keySecret || "").trim();
-  if (!id.startsWith("rzp_")) {
-    throw new Error("Invalid Razorpay Key ID — must start with rzp_live_ (set RAZORPAY_LIVE_KEY_ID on Vercel)");
+  if (!id.startsWith("rzp_test_") && !id.startsWith("rzp_live_")) {
+    throw new Error("Invalid Razorpay Key ID — must start with rzp_test_ or rzp_live_");
   }
   const auth = Buffer.from(`${id}:${secret}`).toString("base64");
   const res = await fetch("https://api.razorpay.com/v1/orders", {
@@ -146,9 +172,6 @@ async function createRazorpayOrderRest({ keyId, keySecret, amountPaise, receipt,
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const msg = data?.error?.description || data?.error?.reason || data?.message || `Razorpay order failed (${res.status})`;
-    // #region agent log
-    fetch('http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a325af'},body:JSON.stringify({sessionId:'a325af',runId:'rzp',hypothesisId:'R1',location:'cePaymentRoutes.js:createRazorpayOrderRest',message:'Razorpay auth/order failed',data:{status:res.status,keyPrefix:id.slice(0,12),err:String(msg).slice(0,120)},timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     throw new Error(msg);
   }
   return data;
@@ -406,16 +429,20 @@ function mountCePayments(app) {
       const quote = quoteINR(cycle);
       const creds = getPaymentCreds();
       const { keyId, keySecret } = creds.razorpay;
+      const expectPrefix = creds.test ? "rzp_test_" : "rzp_live_";
 
-      // Razorpay is LIVE-only — never simulate / never use rzp_test
       if (!keyId || !keySecret) {
         return res.status(503).json({
-          error: "Razorpay live credentials missing. Set RAZORPAY_LIVE_KEY_ID + RAZORPAY_LIVE_KEY_SECRET on Vercel."
+          error: creds.test
+            ? "Razorpay TEST credentials missing. Set RAZORPAY_TEST_KEY_ID + RAZORPAY_TEST_KEY_SECRET on Vercel."
+            : "Razorpay LIVE credentials missing. Set RAZORPAY_LIVE_KEY_ID + RAZORPAY_LIVE_KEY_SECRET on Vercel."
         });
       }
-      if (!String(keyId).startsWith("rzp_live_")) {
+      if (!String(keyId).startsWith(expectPrefix)) {
         return res.status(503).json({
-          error: "Razorpay must use a live key (rzp_live_…). Remove test keys from Vercel."
+          error: creds.test
+            ? "PAYMENT_TEST_MODE=true requires a Razorpay test key (rzp_test_…)."
+            : "PAYMENT_TEST_MODE=false requires a Razorpay live key (rzp_live_…)."
         });
       }
 
@@ -424,12 +451,13 @@ function mountCePayments(app) {
         keySecret,
         amountPaise: quote.amountPaise,
         receipt: `ce_${quote.cycle}_${Date.now()}`.slice(0, 40),
-        notes: { email, cycle: quote.cycle, product: "Claude Enhancer Pro", mode: "live" }
+        notes: {
+          email,
+          cycle: quote.cycle,
+          product: "Claude Enhancer Pro",
+          mode: creds.label
+        }
       });
-
-      // #region agent log
-      fetch('http://127.0.0.1:7652/ingest/113581e5-ff03-4b98-9529-daa3d76e3789',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'a325af'},body:JSON.stringify({sessionId:'a325af',runId:'post-fix',hypothesisId:'R2',location:'cePaymentRoutes.js:create-order',message:'Live Razorpay order created',data:{orderPrefix:String(order.id||'').slice(0,12),keyPrefix:String(keyId).slice(0,12),amount:order.amount},timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       return res.json({
         success: true,
@@ -438,8 +466,9 @@ function mountCePayments(app) {
         currency: order.currency || "INR",
         key_id: keyId,
         quote,
-        payment_mode: "live",
-        razorpay_live_keys: true
+        payment_mode: creds.label,
+        razorpay_live_keys: !!creds.razorpay.usingLiveKeys,
+        razorpay_test_keys: !!creds.razorpay.usingTestKeys
       });
     } catch (err) {
       console.error("[Razorpay create-order]", err);
@@ -463,15 +492,14 @@ function mountCePayments(app) {
       const creds = getPaymentCreds();
       const { keySecret } = creds.razorpay;
       if (!keySecret) {
-        return res.status(503).json({ error: "Razorpay live secret missing" });
+        return res.status(503).json({
+          error: creds.test ? "Razorpay TEST secret missing" : "Razorpay LIVE secret missing"
+        });
       }
-      // Reject any leftover test/sim payloads
-      if (
-        String(razorpay_order_id).startsWith("order_sim_") ||
-        razorpay_signature === "test_mode" ||
-        req.body?.simulate === true
-      ) {
-        return res.status(400).json({ error: "Simulated Razorpay payments are disabled. Use live checkout only." });
+
+      // Soft-block obvious fake payloads (still allow real test checkout)
+      if (razorpay_signature === "test_mode" && !String(razorpay_order_id).startsWith("order_")) {
+        return res.status(400).json({ error: "Invalid simulated payload" });
       }
 
       const expected = crypto
@@ -499,7 +527,7 @@ function mountCePayments(app) {
         expires: exp,
         gst: quote.gst,
         subtotal: quote.subtotal,
-        test: false
+        test: creds.test
       });
       return res.json({
         success: true,
@@ -507,7 +535,7 @@ function mountCePayments(app) {
         email: billingEmail,
         cycle: quote.cycle,
         expiresAt: exp,
-        payment_mode: "live",
+        payment_mode: creds.label,
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
       });
     } catch (err) {
@@ -516,4 +544,4 @@ function mountCePayments(app) {
   });
 }
 
-module.exports = { mountCePayments, getPaymentCreds, isTestMode };
+module.exports = { mountCePayments, getPaymentCreds, isTestMode, quoteUSD, quoteINR, PLANS };

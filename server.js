@@ -94,18 +94,23 @@ app.get('/api/config', (req, res) => {
   const test = isTestMode();
   const paypalReady = Boolean(creds.paypal.clientId && creds.paypal.clientSecret);
   const razorpayReady = Boolean(creds.razorpay.keyId && creds.razorpay.keySecret);
+  const allowLive = String(process.env.ALLOW_LIVE_PAYMENTS || 'false').toLowerCase() === 'true';
 
   res.json({
     payment_test_mode: test,
     payment_mode: creds.label,
+    allow_live_payments: allowLive,
     paypal_live: !test && paypalReady,
-    razorpay_live: !!creds.razorpay.usingLiveKeys,
+    razorpay_live: !test && !!creds.razorpay.usingLiveKeys,
     paypal_ready: paypalReady,
     razorpay_ready: razorpayReady,
     razorpay_using_live_keys: !!creds.razorpay.usingLiveKeys,
+    razorpay_using_test_keys: !!creds.razorpay.usingTestKeys,
     paypal_client_id: creds.paypal.clientId || '',
     paypal_mode: creds.paypal.apiMode,
-    razorpay_key_id: creds.razorpay.keyId || '',
+    razorpay_key_id: creds.razorpay.keyId
+      ? String(creds.razorpay.keyId).slice(0, 12) + '…'
+      : '',
     providers: ['paypal', 'razorpay'],
     gst_rate: 0.18,
     plans: {
@@ -119,8 +124,8 @@ app.get('/api/config', (req, res) => {
       lifetime: 80
     },
     checkout_url: 'https://extension-six-alpha.vercel.app/checkout.html',
-    switch_to_live: 'Set PAYMENT_TEST_MODE=false on Vercel and redeploy',
-    switch_to_test: 'Set PAYMENT_TEST_MODE=true on Vercel and redeploy'
+    switch_to_live: 'Set ALLOW_LIVE_PAYMENTS=true and PAYMENT_TEST_MODE=false on Vercel, then redeploy',
+    switch_to_test: 'Set ALLOW_LIVE_PAYMENTS=false (or omit) and PAYMENT_TEST_MODE=true, then redeploy'
   });
 });
 

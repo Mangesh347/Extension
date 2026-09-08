@@ -23,7 +23,13 @@
       <p>Pay on the <a href="checkout.html">checkout page</a>, then open Claude.ai and sign into the extension with the <strong>same billing email</strong>.</p>
 
       <h2>Test vs Live</h2>
-      <p>Razorpay always uses live keys (<code>RAZORPAY_LIVE_*</code>) — real charges. PayPal still follows <code>PAYMENT_TEST_MODE</code> (sandbox vs live). Set <code>PAYMENT_TEST_MODE=false</code> when you want PayPal live too.</p>
+      <p>Both PayPal and Razorpay follow <code>PAYMENT_TEST_MODE</code>:</p>
+      <ul>
+        <li><strong>true</strong> — PayPal sandbox + Razorpay <code>rzp_test_*</code> (no real money)</li>
+        <li><strong>false</strong> — PayPal live + Razorpay <code>rzp_live_*</code> (real charges)</li>
+      </ul>
+      <p>Prices: <strong>$4 / month</strong>, <strong>$40 / year</strong>, <strong>$80 lifetime</strong> (+ 18% GST at checkout).</p>
+      <p>When ready for production: set <code>PAYMENT_TEST_MODE=false</code> on Vercel and redeploy.</p>
 
       <h2>Contact</h2>
       <p><a href="mailto:support@fenwicklabs.com">support@fenwicklabs.com</a><br />
