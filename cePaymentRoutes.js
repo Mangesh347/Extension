@@ -375,7 +375,7 @@ function mountCePayments(app) {
           cycle: quote.cycle,
           expiresAt: exp,
           payment_mode: creds.label,
-          redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
+          redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
         });
       }
 
@@ -415,7 +415,7 @@ function mountCePayments(app) {
         cycle: quote.cycle,
         expiresAt: exp,
         payment_mode: creds.label,
-        redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(payerEmail)}`
+        redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(payerEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });
@@ -536,7 +536,7 @@ function mountCePayments(app) {
         cycle: quote.cycle,
         expiresAt: exp,
         payment_mode: creds.label,
-        redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}`
+        redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {
       return res.status(500).json({ error: err.message });

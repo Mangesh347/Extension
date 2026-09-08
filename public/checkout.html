@@ -192,25 +192,53 @@
       return e;
     }
 
+    function escapeHtml(s) {
+      return String(s || "").replace(/[&<>"']/g, (c) =>
+        ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])
+      );
+    }
+
     function showSuccess(data) {
-      const redirect = data.redirect || `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(data.email || "")}`;
+      const email = (data.email || "").trim().toLowerCase();
+      const emailSafe = escapeHtml(email || "the Gmail you used at checkout");
+      const key = (data.licenseKey || "").trim();
+      const params = new URLSearchParams({ ce_pro: "1" });
+      if (email) params.set("email", email);
+      if (key) params.set("key", key);
+      const redirect = `https://claude.ai/?${params.toString()}`;
+      const expiresLine = data.expiresAt
+        ? `Pro active until <strong>${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}</strong>`
+        : `Lifetime Pro on this email`;
       const modeNote = data.payment_mode === "test"
-        ? `<p style="color:#b45309;font-size:13px;margin:8px 0 0">Test payment — Pro unlock uses your test entitlement (same email in the extension).</p>`
+        ? `<p class="ck-success-test">Test payment — use this same email in Claude to unlock your test Pro entitlement.</p>`
         : "";
+
       document.getElementById("checkoutShell").innerHTML = `
-        <div class="ck-right" style="grid-column:1/-1;max-width:520px;margin:10vh auto;text-align:center">
+        <div class="ck-right ck-success-wrap">
           <div class="ck-success">
-            <div style="width:56px;height:56px;border-radius:50%;background:#111;color:#fff;display:grid;place-items:center;margin:0 auto 16px;font-weight:700">OK</div>
-            <h1>Payment verified</h1>
-            <p>Pro is active for <strong>${data.email || "your email"}</strong>${data.expiresAt ? ` until <strong>${new Date(data.expiresAt).toLocaleDateString()}</strong>` : " (lifetime)"}.</p>
+            <div class="ck-success-check" aria-hidden="true">✓</div>
+            <p class="ck-success-kicker">Payment successful</p>
+            <h1>Open your Claude Enhancer Pro</h1>
+            <p class="ck-success-lead">
+              Log in to Claude with <strong>${emailSafe}</strong> — the same Gmail you already used for this payment.
+              When Claude Enhancer opens, Pro activates automatically.
+            </p>
+            <ol class="ck-success-steps">
+              <li>Tap <strong>Open Claude Enhancer Pro</strong> (opens Claude)</li>
+              <li>Sign in with <strong>${emailSafe}</strong> if Claude asks</li>
+              <li>Pro unlocks automatically on this Chrome profile</li>
+            </ol>
             ${modeNote}
-            <div class="ck-key">${data.licenseKey || "License emailed"}</div>
-            <p style="color:#666;font-size:14px;margin-bottom:20px">Open Claude and sign in with this same email. Pro unlocks on up to 2 Chrome profiles.</p>
-            <a class="ck-btn ck-btn-dark" href="${redirect}">Open Claude Enhancer Pro</a>
-            <p style="margin-top:16px"><a href="/" style="color:#666;font-size:13px">Back to home</a></p>
+            <a class="ck-btn ck-btn-dark ck-success-cta" href="${redirect}" id="openProCta">Open Claude Enhancer Pro</a>
+            <p class="ck-success-meta">${expiresLine}${key ? ` · License <code>${escapeHtml(key)}</code>` : ""}</p>
+            <p class="ck-success-note">Works on up to 2 Chrome profiles with this email.</p>
+            <p class="ck-success-home"><a href="/">Back to home</a></p>
           </div>
         </div>`;
-      try { localStorage.setItem("ce_license_key", data.licenseKey || ""); } catch (_) {}
+      try {
+        if (key) localStorage.setItem("ce_license_key", key);
+        if (email) localStorage.setItem("ce_billing_email", email);
+      } catch (_) {}
     }
 
     async function detectMode() {
