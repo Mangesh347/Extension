@@ -260,6 +260,66 @@ async function recordEntitlement({ email, paymentId, provider, cycle, amount, cu
       console.warn("[CE Pay] entitlement insert failed:", res.status, t.slice(0, 200));
       return { ok: false, status: res.status };
     }
+
+    /* Keep profiles.plan in sync when this email already has a Supabase auth user */
+    try {
+      const authRes = await fetch(
+        `${url}/auth/v1/admin/users?filter=${encodeURIComponent(String(email).toLowerCase().trim())}`,
+        { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+      );
+      if (authRes.ok) {
+        const data = await authRes.json();
+        const userId = data?.users?.[0]?.id;
+        if (userId) {
+          const nowIso = new Date().toISOString();
+          await fetch(`${url}/rest/v1/profiles`, {
+            method: "POST",
+            headers: {
+              apikey: key,
+              Authorization: `Bearer ${key}`,
+              "Content-Type": "application/json",
+              Prefer: "resolution=merge-duplicates"
+            },
+            body: JSON.stringify({
+              user_id: userId,
+              email: String(email).toLowerCase().trim(),
+              plan: "pro",
+              plan_started_at: nowIso,
+              cycle_start_date: nowIso,
+              updated_at: nowIso,
+              created_at: nowIso
+            })
+          });
+          const providerNorm =
+            String(provider || "").includes("paypal") ? "paypal" :
+            String(provider || "").includes("razorpay") ? "razorpay" : null;
+          if (providerNorm && paymentId) {
+            await fetch(`${url}/rest/v1/payments`, {
+              method: "POST",
+              headers: {
+                apikey: key,
+                Authorization: `Bearer ${key}`,
+                "Content-Type": "application/json",
+                Prefer: "resolution=merge-duplicates"
+              },
+              body: JSON.stringify({
+                user_id: userId,
+                provider: providerNorm,
+                provider_payment_id: paymentId,
+                amount: amount != null ? amount : null,
+                currency: currency || null,
+                status: "verified",
+                plan_purchased: cycle || "yearly",
+                verified_at: nowIso
+              })
+            });
+          }
+        }
+      }
+    } catch (profileErr) {
+      console.warn("[CE Pay] profile upgrade after payment:", profileErr.message);
+    }
+
     return { ok: true };
   } catch (e) {
     console.warn("[CE Pay] entitlement:", e.message);

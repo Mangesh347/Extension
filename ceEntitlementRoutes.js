@@ -31,11 +31,109 @@ function supabaseConfig() {
 
 function cors(res) {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader(
     "Access-Control-Allow-Headers",
     "Authorization, Content-Type, X-Device-ID"
   );
+}
+
+function isActiveEntitlementRow(row) {
+  if (!row || row.status === "revoked") return false;
+  const exp = row.metadata?.expiresAt;
+  if (!exp) return true;
+  return new Date(exp).getTime() > Date.now();
+}
+
+async function findEntitlementByLicenseOrEmail(licenseKey, email) {
+  const { url, key, ok } = supabaseConfig();
+  if (!ok) return null;
+
+  const keyClean = String(licenseKey || "").trim().toUpperCase();
+  const emailNorm = String(email || "").toLowerCase().trim();
+
+  if (keyClean) {
+    const byKey = await fetch(
+      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>licenseKey=eq.${encodeURIComponent(keyClean)}&select=id,user_id,email_hash,status,metadata,created_at&order=created_at.desc&limit=5`,
+      {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          Accept: "application/json"
+        }
+      }
+    );
+    if (byKey.ok) {
+      const rows = await byKey.json().catch(() => []);
+      for (const row of rows || []) {
+        if (!isActiveEntitlementRow(row)) continue;
+        if (emailNorm) {
+          const metaEmail = String(row.metadata?.email || "").toLowerCase().trim();
+          const hashMatch = row.email_hash === hashEmail(emailNorm);
+          if (metaEmail && metaEmail !== emailNorm && !hashMatch) continue;
+        }
+        return row;
+      }
+    }
+  }
+
+  if (emailNorm) {
+    return findActiveEntitlement(null, emailNorm);
+  }
+  return null;
+}
+
+async function upgradeProfileByEmail(email, cycle) {
+  const { url, key, ok } = supabaseConfig();
+  if (!ok || !email) return;
+  try {
+    const authRes = await fetch(
+      `${url}/auth/v1/admin/users?filter=${encodeURIComponent(email)}`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } }
+    );
+    if (!authRes.ok) return;
+    const data = await authRes.json();
+    const userId = data?.users?.[0]?.id;
+    if (!userId) return;
+    const nowIso = new Date().toISOString();
+    await fetch(`${url}/rest/v1/profiles?user_id=eq.${encodeURIComponent(userId)}`, {
+      method: "PATCH",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "return=minimal"
+      },
+      body: JSON.stringify({
+        plan: "pro",
+        email,
+        plan_started_at: nowIso,
+        updated_at: nowIso
+      })
+    });
+    // Upsert if missing
+    await fetch(`${url}/rest/v1/profiles`, {
+      method: "POST",
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        "Content-Type": "application/json",
+        Prefer: "resolution=merge-duplicates"
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        email,
+        plan: "pro",
+        plan_started_at: nowIso,
+        cycle_start_date: nowIso,
+        updated_at: nowIso,
+        created_at: nowIso
+      })
+    });
+    return userId;
+  } catch (err) {
+    console.warn("[CE Activate] profile upgrade:", err.message);
+  }
 }
 
 async function verifySupabaseToken(token) {
@@ -141,6 +239,104 @@ function mountCeEntitlements(app) {
   app.options("/api/user/token", (req, res) => {
     cors(res);
     return res.status(204).end();
+  });
+  app.options("/api/user/activate-license", (req, res) => {
+    cors(res);
+    return res.status(204).end();
+  });
+  app.options("/api/user/access", (req, res) => {
+    cors(res);
+    return res.status(204).end();
+  });
+
+  /**
+   * POST /api/user/activate-license
+   * Verify payment in Supabase by license key + billing email, then issue Pro token.
+   * Works without a Supabase auth session (signed-out / guest Chrome profile).
+   */
+  app.post("/api/user/activate-license", async (req, res) => {
+    cors(res);
+    try {
+      const licenseKey = String(req.body?.licenseKey || req.body?.key || "")
+        .trim()
+        .toUpperCase();
+      const email = String(req.body?.email || "")
+        .toLowerCase()
+        .trim();
+      const deviceId =
+        String(req.body?.deviceId || req.headers["x-device-id"] || "")
+          .trim()
+          .slice(0, 64) || null;
+
+      if (!licenseKey && !email) {
+        return res.status(400).json({
+          ok: false,
+          plan: "free",
+          error: "Provide the license key and/or billing email from checkout."
+        });
+      }
+
+      const { ok: supabaseOk } = supabaseConfig();
+      if (!supabaseOk) {
+        return res.status(503).json({
+          ok: false,
+          plan: "free",
+          error: "Payment verification unavailable — Supabase not configured."
+        });
+      }
+
+      const entitlement = await findEntitlementByLicenseOrEmail(licenseKey, email);
+      if (!entitlement) {
+        return res.status(404).json({
+          ok: false,
+          plan: "free",
+          error: "No successful payment found for this email/license. Finish checkout first."
+        });
+      }
+
+      const billingEmail =
+        String(entitlement.metadata?.email || email || "")
+          .toLowerCase()
+          .trim() || null;
+      const expiresAt = entitlement.metadata?.expiresAt || null;
+      const userId =
+        entitlement.user_id ||
+        (billingEmail ? `email:${hashEmail(billingEmail)}` : `license:${hashEmail(licenseKey || "unknown")}`);
+
+      if (entitlement.user_id || billingEmail) {
+        await upgradeProfileByEmail(billingEmail, entitlement.metadata?.cycle);
+      }
+
+      if (entitlement.user_id && deviceId) {
+        const device = await enforceDeviceLimit(entitlement.user_id, deviceId);
+        if (!device.allowed) {
+          return res.status(200).json({
+            ok: false,
+            entitlementToken: issueEntitlementToken(userId, "free", deviceId, null),
+            plan: "free",
+            reason: "device_limit_exceeded",
+            deviceCount: device.deviceCount,
+            deviceLimit: DEVICE_LIMIT,
+            message: "Pro is limited to 2 Chrome profiles per paid email."
+          });
+        }
+      }
+
+      const entitlementToken = issueEntitlementToken(userId, "pro", deviceId, expiresAt);
+      return res.status(200).json({
+        ok: true,
+        entitlementToken,
+        plan: "pro",
+        email: billingEmail ? maskEmail(billingEmail) : null,
+        expiresAt,
+        cycle: entitlement.metadata?.cycle || null,
+        licenseKey: entitlement.metadata?.licenseKey || licenseKey || null,
+        expiresIn: 4 * 60 * 60 * 1000
+      });
+    } catch (err) {
+      console.error("[CE Activate]", err);
+      return res.status(500).json({ ok: false, plan: "free", error: err.message || "Activation failed" });
+    }
   });
 
   app.get("/api/user/token", async (req, res) => {
@@ -285,6 +481,7 @@ function mountCeEntitlements(app) {
 module.exports = {
   mountCeEntitlements,
   findActiveEntitlement,
+  findEntitlementByLicenseOrEmail,
   hashEmail,
   DEVICE_LIMIT
 };
