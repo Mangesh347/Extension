@@ -210,7 +210,7 @@
         ? `Pro active until <strong>${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}</strong>`
         : `Lifetime Pro on this email`;
       const modeNote = data.payment_mode === "test"
-        ? `<p class="ck-success-test">Test payment — use this same email in Claude to unlock your test Pro entitlement.</p>`
+        ? `<p class="ck-success-test">Test payment — open Claude with this same Gmail to unlock Pro.</p>`
         : "";
 
       document.getElementById("checkoutShell").innerHTML = `
@@ -218,20 +218,20 @@
           <div class="ck-success">
             <div class="ck-success-check" aria-hidden="true">✓</div>
             <p class="ck-success-kicker">Payment successful</p>
-            <h1>Open your Claude Enhancer Pro</h1>
+            <h1>Open Claude — Pro unlocks automatically</h1>
             <p class="ck-success-lead">
-              Log in to Claude with <strong>${emailSafe}</strong> — the same Gmail you already used for this payment.
-              When Claude Enhancer opens, Pro activates automatically.
+              Sign in to Claude with <strong>${emailSafe}</strong> (the Gmail you paid with).
+              Claude Enhancer turns on Pro by itself — no license key to enter.
             </p>
             <ol class="ck-success-steps">
-              <li>Tap <strong>Open Claude Enhancer Pro</strong> (opens Claude)</li>
-              <li>Sign in with <strong>${emailSafe}</strong> if Claude asks</li>
-              <li>Pro unlocks automatically on this Chrome profile</li>
+              <li>Tap <strong>Open Claude Enhancer Pro</strong></li>
+              <li>Use <strong>${emailSafe}</strong> on Claude if asked</li>
+              <li>Pro activates automatically</li>
             </ol>
             ${modeNote}
             <a class="ck-btn ck-btn-dark ck-success-cta" href="${redirect}" id="openProCta">Open Claude Enhancer Pro</a>
-            <p class="ck-success-meta">${expiresLine}${key ? ` · License <code>${escapeHtml(key)}</code>` : ""}</p>
-            <p class="ck-success-note">Works on up to 2 Chrome profiles with this email.</p>
+            <p class="ck-success-meta">${expiresLine}</p>
+            <p class="ck-success-note">Redirecting in a few seconds… · Up to 2 Chrome profiles</p>
             <p class="ck-success-home"><a href="/">Back to home</a></p>
           </div>
         </div>`;
@@ -239,6 +239,9 @@
         if (key) localStorage.setItem("ce_license_key", key);
         if (email) localStorage.setItem("ce_billing_email", email);
       } catch (_) {}
+      setTimeout(() => {
+        try { location.href = redirect; } catch (_) {}
+      }, 2500);
     }
 
     async function detectMode() {
