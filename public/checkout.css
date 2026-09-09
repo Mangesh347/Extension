@@ -88,6 +88,16 @@ body.ck-body {
   background: #1a1a1a;
 }
 .ck-test.on { display: block; }
+.ck-test.ck-trust {
+  border-color: #2f2f2f;
+  color: #d4d4d4;
+  background: #141414;
+}
+.ck-test.ck-practice {
+  border-color: #3f3a1a;
+  color: #f5e8a3;
+  background: #1a180e;
+}
 
 .ck-currency {
   display: inline-flex;

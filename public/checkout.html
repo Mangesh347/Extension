@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout — Claude Enhancer Pro</title>
-  <meta name="description" content="Pay securely with PayPal or Razorpay. $4 / $40 / $80 + 18% GST." />
+  <meta name="description" content="Upgrade to Claude Enhancer Pro. Secure checkout from $4/mo." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -16,16 +16,16 @@
     <aside class="ck-left" aria-label="Order summary">
       <a class="ck-back" href="/">Back to home</a>
       <div class="ck-brand"><span class="ck-brand-mark">CE</span> Claude Enhancer</div>
-      <p class="ck-kicker">Subscribe to Claude Enhancer Pro</p>
+      <p class="ck-kicker">Upgrade to Claude Enhancer Pro</p>
       <p class="ck-price-hero" id="heroPrice">$47.20 per year</p>
 
-      <div class="ck-test on" id="testBanner">TEST MODE — PayPal sandbox + Razorpay test keys. No real charges.</div>
+      <div class="ck-test on ck-trust" id="testBanner">Secure checkout · Pro unlocks on your billing email</div>
 
       <div class="ck-currency" role="group" aria-label="Currency">
         <button type="button" class="active" data-currency="USD" id="curUSD">USD</button>
         <button type="button" data-currency="INR" id="curINR">INR</button>
       </div>
-      <p class="ck-fx-note">Base prices: $4 / $40 / $80. Checkout adds 18% GST. INR quote for Razorpay only.</p>
+      <p class="ck-fx-note">Plans: $4 / $40 / $80. Applicable tax is added below. INR available for card / UPI.</p>
 
       <div class="ck-plan-pills" role="tablist" aria-label="Billing cycle">
         <button type="button" data-cycle="monthly">Monthly · $4</button>
@@ -170,8 +170,8 @@
       document.getElementById("curUSD").classList.toggle("active", currency === "USD");
       document.getElementById("curINR").classList.toggle("active", currency === "INR");
       document.getElementById("annualHint").textContent =
-        cycle === "yearly" ? "Save vs $4 × 12 months · GST included in total" :
-        cycle === "lifetime" ? "Pay once · lifetime Pro on this email" :
+        cycle === "yearly" ? "Best value — save versus paying monthly" :
+        cycle === "lifetime" ? "Pay once · keep Pro on this email" :
         "Billed monthly · renew before expiry to continue";
       // Banner set in detectMode from /api/config
     }
@@ -210,15 +210,15 @@
         ? `Pro active until <strong>${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}</strong>`
         : `Lifetime Pro on this email`;
       const modeNote = data.payment_mode === "test"
-        ? `<p class="ck-success-test">Test payment — open Claude with this same Gmail to unlock Pro.</p>`
+        ? `<p class="ck-success-test">Practice payment complete — open Claude with this same email to try Pro.</p>`
         : "";
       const mailNote = data.receiptEmailed
         ? `<p class="ck-success-meta" style="color:#027a48">Receipt emailed to <strong>${emailSafe}</strong>.</p>`
         : (email ? `<p class="ck-success-meta">A receipt is being sent to <strong>${emailSafe}</strong>.</p>` : "");
       const dbNote = data.supabaseSaved === false
-        ? `<p class="ck-success-test">Payment took, but Pro seat failed to save — contact support with your payment email.</p>`
+        ? `<p class="ck-success-test">Payment received — if Pro does not unlock, email support with your billing address.</p>`
         : data.supabaseSaved === true
-          ? `<p class="ck-success-meta" style="color:#027a48">Pro seat saved · ${escapeHtml(data.cycle || "plan")}${data.expiresAt ? ` until ${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}` : " · lifetime"}.</p>`
+          ? `<p class="ck-success-meta" style="color:#027a48">Pro is ready · ${escapeHtml(data.cycle || "plan")}${data.expiresAt ? ` until ${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}` : " · lifetime"}.</p>`
           : "";
 
       document.getElementById("checkoutShell").innerHTML = `
@@ -263,16 +263,13 @@
         const banner = document.getElementById("testBanner");
         if (banner) {
           banner.classList.add("on");
+          banner.classList.remove("ck-trust", "ck-practice");
           if (testMode) {
-            const pp = data.paypal_ready ? "PayPal sandbox OK" : "PayPal sandbox keys missing";
-            const rz = data.razorpay_using_test_keys
-              ? "Razorpay TEST OK (rzp_test_)"
-              : data.razorpay_using_live_keys
-                ? "BLOCKED: live Razorpay key — redeploy + set RAZORPAY_TEST_*"
-                : "Set RAZORPAY_TEST_KEY_ID + SECRET on Vercel";
-            banner.textContent = `TEST MODE · ₹${INR_RATE}/$ · $4/$40/$80 · ${pp} · ${rz}`;
+            banner.classList.add("ck-practice");
+            banner.textContent = "Practice checkout — no real charges. Upgrade to Pro when you are ready.";
           } else {
-            banner.textContent = `LIVE MODE — real charges · ₹${INR_RATE} per $1 · PayPal + Razorpay`;
+            banner.classList.add("ck-trust");
+            banner.textContent = "Upgrade to Pro — secure checkout. Pro unlocks on your billing email.";
           }
         }
       } catch (_) {
@@ -286,7 +283,7 @@
       if (!e) return;
       const btn = document.getElementById("payPaypal");
       btn.disabled = true;
-      setStatus(testMode ? "Sandbox: creating PayPal order…" : "Creating PayPal order…");
+      setStatus(testMode ? "Starting practice PayPal checkout…" : "Creating PayPal order…");
       try {
         const res = await fetch("/api/paypal/create-order", {
           method: "POST",
@@ -322,7 +319,7 @@
       if (!e) return;
       currency = "INR";
       render();
-      setStatus(testMode ? "Opening Razorpay test checkout…" : "Opening Razorpay…");
+      setStatus(testMode ? "Opening practice card checkout…" : "Opening secure card checkout…");
       try {
         const res = await fetch("/api/razorpay/create-order", {
           method: "POST",
@@ -335,18 +332,16 @@
         const okKey = testMode ? key.startsWith("rzp_test_") : key.startsWith("rzp_live_");
         if (!okKey) {
           throw new Error(
-            testMode
-              ? "Server did not return a Razorpay TEST key (rzp_test_…). Check RAZORPAY_TEST_* on Vercel."
-              : "Server did not return a Razorpay LIVE key (rzp_live_…)."
+            "Card checkout is temporarily unavailable. Try PayPal or contact support."
           );
         }
-        if (typeof Razorpay === "undefined") throw new Error("Razorpay SDK failed to load");
+        if (typeof Razorpay === "undefined") throw new Error("Payment form failed to load — refresh and try again");
         const rzp = new Razorpay({
           key: data.key_id,
           amount: data.amount,
           currency: data.currency || "INR",
           name: "Claude Enhancer Pro",
-          description: `Pro ${cycle} (incl. GST)${testMode ? " — TEST" : ""}`,
+          description: `Pro ${cycle}${testMode ? " (practice)" : ""}`,
           order_id: data.order_id,
           prefill: { email: e },
           theme: { color: "#111111" },

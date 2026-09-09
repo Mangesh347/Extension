@@ -226,6 +226,18 @@ button, input, select { font: inherit; }
   padding: 22px;
   background: var(--ink-soft);
   min-height: 160px;
+  transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+}
+
+.feature:hover {
+  transform: translateY(-4px);
+  border-color: #404040;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+}
+
+.feature-anim {
+  animation: featureRise 560ms ease-out both;
+  animation-delay: calc(var(--d, 0) * 70ms);
 }
 
 .feature-ico {
@@ -237,6 +249,34 @@ button, input, select { font: inherit; }
   display: grid;
   place-items: center;
   margin-bottom: 14px;
+  animation: icoPulse 2.4s ease-in-out infinite;
+  animation-delay: calc(var(--d, 0) * 120ms);
+}
+
+@keyframes featureRise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes icoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature,
+  .feature-anim,
+  .feature-ico {
+    animation: none !important;
+    transition: none !important;
+  }
+  .feature:hover { transform: none; }
 }
 
 .feature h3 {
@@ -255,6 +295,10 @@ button, input, select { font: inherit; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+.pricing-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .plan {
@@ -506,10 +550,17 @@ button, input, select { font: inherit; }
 
 .compare th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: #737373; }
 
+@media (max-width: 1100px) {
+  .pricing-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
 @media (max-width: 900px) {
   .hero-grid,
   .feature-grid,
   .pricing-grid,
+  .pricing-grid-4,
   .steps,
   .footer-grid {
     grid-template-columns: 1fr;

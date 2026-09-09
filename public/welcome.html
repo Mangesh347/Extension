@@ -3,76 +3,48 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Welcome to Fenwick Labs Pro!</title>
-  <meta name="description" content="Thank you for subscribing to Fenwick Labs Pro." />
-  
+  <title>Welcome — Claude Enhancer Pro</title>
+  <meta name="description" content="Thank you for upgrading to Claude Enhancer Pro." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="site-header">
-    <div class="container">
-      <a href="/" class="logo">
-        <div class="logo-icon">FL</div>
-        <span>Fenwick Labs</span>
+    <div class="wrap header-inner">
+      <a class="brand" href="/">
+        <span class="brand-mark">CE</span>
+        <span>Claude Enhancer</span>
       </a>
-      <div class="nav-badge">Paddle Sandbox Checkout Success</div>
+      <a class="btn btn-white" href="https://claude.ai/" target="_blank" rel="noopener">Open Claude</a>
     </div>
   </header>
 
-  <main class="container">
-    <div class="welcome-container">
-      <div class="success-icon-wrap">
-        <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
-        </svg>
-      </div>
+  <main class="wrap" style="padding:64px 0;max-width:640px">
+    <h1 style="font-size:2rem;font-weight:800;letter-spacing:-0.03em;margin-bottom:12px">You are Pro</h1>
+    <p style="color:var(--muted);font-size:1rem;margin:0 0 28px">
+      Thanks for upgrading to <strong>Claude Enhancer Pro</strong>. Open Claude with your billing email — Pro unlocks automatically.
+    </p>
 
-      <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 12px;">Payment Successful!</h1>
-      <p style="color: var(--text-muted); font-size: 1rem; max-width: 480px; margin: 0 auto 24px;">
-        Welcome to <strong>Fenwick Labs Pro</strong>! Your Paddle Sandbox order has been confirmed.
-      </p>
+    <ol style="padding-left:1.2em;line-height:1.7;color:#d4d4d4;margin-bottom:36px">
+      <li>Check your inbox for the payment receipt</li>
+      <li>Open Claude.ai with the same billing email</li>
+      <li>Enjoy unlimited exports, folders, and the full Pro toolkit</li>
+    </ol>
 
-      <div class="steps-list">
-        <div class="step-card">
-          <div class="step-num">1</div>
-          <div class="step-text">
-            <h5>Check your confirmation email</h5>
-            <p>Paddle has sent your receipt and customer portal link to your email address.</p>
-          </div>
-        </div>
-
-        <div class="step-card">
-          <div class="step-num">2</div>
-          <div class="step-text">
-            <h5>Open your extension popup</h5>
-            <p>Click on any Fenwick Labs extension (Job Fit Check, HirePilot AI, SoundBlast, etc.) in your browser toolbar.</p>
-          </div>
-        </div>
-
-        <div class="step-card">
-          <div class="step-num">3</div>
-          <div class="step-text">
-            <h5>Enjoy unlimited Pro capabilities</h5>
-            <p>All Pro limits have been lifted across all installed Fenwick Labs extensions on your profile.</p>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top: 36px; display: flex; justify-content: center; gap: 14px;">
-        <a href="/" class="btn-checkout btn-primary" style="text-decoration: none; width: auto; padding: 12px 28px;">
-          ← Return to Home
-        </a>
-      </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <a class="btn btn-white" href="https://claude.ai/" target="_blank" rel="noopener">Open Claude</a>
+      <a class="btn btn-ghost" href="/">Back to home</a>
     </div>
   </main>
 
   <footer class="site-footer">
-    <div class="container">
-      <p>© <span id="year"></span> Fenwick Labs. Paddle Sandbox Integration.</p>
+    <div class="wrap">
+      <div class="footer-bottom" style="border:0;padding-top:0">
+        <span>© <span id="year"></span> Claude Enhancer · Fenwick Labs</span>
+        <a href="support.html" style="color:#d4d4d4">Support</a>
+      </div>
     </div>
   </footer>
 
