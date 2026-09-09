@@ -9,6 +9,7 @@
 const crypto = require("crypto");
 const path = require("path");
 const { sendPaymentReceiptEmail, sendLifetimeThanksEmail } = require("./ceMail");
+const { upsertProSubscription } = require("./ceSubscriptions");
 
 const GST_RATE = 0.18;
 const PLANS = {
@@ -328,20 +329,35 @@ async function recordEntitlement({ email, paymentId, provider, cycle, amount, cu
   }
 }
 
-/** After payment verified: write Supabase + email receipt. Never blocks unlock on mail failure. */
+/** After payment verified: upsert pro_subscriptions + entitlement_events + receipt. */
 async function fulfillProPurchase(args) {
+  const emailNorm = String(args.email || "").toLowerCase().trim();
+  const sub = await upsertProSubscription({
+    email: emailNorm,
+    cycle: args.cycle,
+    amount: args.amount,
+    currency: args.currency,
+    gst: args.gst,
+    expiresAt: args.expires,
+    provider: args.provider,
+    paymentId: args.paymentId,
+    licenseKey: args.license,
+    test: args.test
+  });
+
   const recorded = await recordEntitlement(args);
+
   let mail = { ok: false };
   try {
     if (args.cycle === "lifetime") {
       mail = await sendLifetimeThanksEmail({
-        email: args.email,
+        email: emailNorm,
         amount: args.amount,
         currency: args.currency
       });
     } else {
       mail = await sendPaymentReceiptEmail({
-        email: args.email,
+        email: emailNorm,
         cycle: args.cycle,
         expiresAt: args.expires,
         licenseKey: args.license,
@@ -353,14 +369,33 @@ async function fulfillProPurchase(args) {
         test: args.test
       });
     }
-    // If this email already had a prior entitlement, also send "renewed" (best-effort)
-    if (args.cycle !== "lifetime" && recorded?.ok) {
-      /* receipt already covers first purchase; skip duplicate renewed */
-    }
   } catch (err) {
     console.warn("[CE Pay] receipt email:", err.message);
   }
-  return { recorded, mail };
+
+  const supabaseSaved = Boolean(sub.ok || recorded.ok);
+  if (!supabaseSaved) {
+    console.error("[CE Pay] CRITICAL: payment verified but Supabase Pro seat NOT saved", {
+      email: emailNorm.replace(/^(.{2}).*(@.*)$/, "$1***$2"),
+      subError: sub.error || sub.status,
+      recorded
+    });
+  }
+
+  return {
+    recorded,
+    sub,
+    mail,
+    supabaseSaved,
+    plan: sub.summary || {
+      plan: supabaseSaved ? "pro" : "free",
+      cycle: args.cycle,
+      amount: args.amount,
+      currency: args.currency,
+      expiresAt: args.expires,
+      lifetime: !args.expires
+    }
+  };
 }
 
 function mountCePayments(app) {
@@ -472,6 +507,9 @@ function mountCePayments(app) {
           expiresAt: exp,
           payment_mode: creds.label,
           receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
+          supabaseSaved: Boolean(fulfilled.supabaseSaved),
+          plan: fulfilled.plan || null,
+          amount: quote.total,
           redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
         });
       }
@@ -513,6 +551,9 @@ function mountCePayments(app) {
         expiresAt: exp,
         payment_mode: creds.label,
         receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
+          supabaseSaved: Boolean(fulfilled.supabaseSaved),
+          plan: fulfilled.plan || null,
+          amount: quote.total,
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(payerEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {
@@ -635,6 +676,9 @@ function mountCePayments(app) {
         expiresAt: exp,
         payment_mode: creds.label,
         receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
+          supabaseSaved: Boolean(fulfilled.supabaseSaved),
+          plan: fulfilled.plan || null,
+          amount: quote.total,
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {

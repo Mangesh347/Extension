@@ -215,6 +215,11 @@
       const mailNote = data.receiptEmailed
         ? `<p class="ck-success-meta" style="color:#027a48">Receipt emailed to <strong>${emailSafe}</strong>.</p>`
         : (email ? `<p class="ck-success-meta">A receipt is being sent to <strong>${emailSafe}</strong>.</p>` : "");
+      const dbNote = data.supabaseSaved === false
+        ? `<p class="ck-success-test">Payment took, but Pro seat failed to save — contact support with your payment email.</p>`
+        : data.supabaseSaved === true
+          ? `<p class="ck-success-meta" style="color:#027a48">Pro seat saved · ${escapeHtml(data.cycle || "plan")}${data.expiresAt ? ` until ${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}` : " · lifetime"}.</p>`
+          : "";
 
       document.getElementById("checkoutShell").innerHTML = `
         <div class="ck-right ck-success-wrap">
@@ -233,6 +238,7 @@
             </ol>
             ${modeNote}
             ${mailNote}
+            ${dbNote}
             <a class="ck-btn ck-btn-dark ck-success-cta" href="${redirect}" id="openProCta">Open Claude Enhancer Pro</a>
             <p class="ck-success-meta">${expiresLine}</p>
             <p class="ck-success-note">Redirecting in a few seconds… · Up to 2 Chrome profiles</p>

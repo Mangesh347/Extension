@@ -5,6 +5,12 @@
  */
 
 const crypto = require("crypto");
+const {
+  findProSubscription,
+  summarizeSub,
+  upsertProSubscription,
+  isSubActive
+} = require("./ceSubscriptions");
 
 const DEVICE_LIMIT = 2;
 
@@ -46,15 +52,82 @@ function isActiveEntitlementRow(row) {
 }
 
 async function findEntitlementByLicenseOrEmail(licenseKey, email) {
+  const emailNorm = String(email || "").toLowerCase().trim();
+
+  // Primary source of truth: pro_subscriptions
+  if (emailNorm) {
+    const sub = await findProSubscription(emailNorm);
+    if (sub) {
+      return {
+        id: `sub:${sub.email}`,
+        user_id: null,
+        email_hash: sub.email_hash,
+        payment_id: sub.payment_id,
+        status: sub.status,
+        metadata: {
+          email: sub.email,
+          plan: "pro",
+          cycle: sub.cycle,
+          amount: sub.amount,
+          currency: sub.currency,
+          gst: sub.gst,
+          expiresAt: sub.expires_at,
+          provider: sub.provider,
+          licenseKey: sub.license_key,
+          activatedAt: sub.updated_at
+        },
+        created_at: sub.created_at,
+        _from: "pro_subscriptions"
+      };
+    }
+  }
+
   const { url, key, ok } = supabaseConfig();
   if (!ok) return null;
 
   const keyClean = String(licenseKey || "").trim().toUpperCase();
-  const emailNorm = String(email || "").toLowerCase().trim();
 
   if (keyClean) {
+    // Check pro_subscriptions by license
+    const { url: u2, key: k2 } = supabaseConfig();
+    const byLic = await fetch(
+      `${u2}/rest/v1/pro_subscriptions?license_key=eq.${encodeURIComponent(keyClean)}&status=eq.active&select=*&limit=1`,
+      {
+        headers: {
+          apikey: k2,
+          Authorization: `Bearer ${k2}`,
+          Accept: "application/json"
+        }
+      }
+    );
+    if (byLic.ok) {
+      const rows = await byLic.json().catch(() => []);
+      const sub = Array.isArray(rows) ? rows[0] : null;
+      if (sub && isSubActive(sub)) {
+        return {
+          id: `sub:${sub.email}`,
+          user_id: null,
+          email_hash: sub.email_hash,
+          payment_id: sub.payment_id,
+          status: sub.status,
+          metadata: {
+            email: sub.email,
+            plan: "pro",
+            cycle: sub.cycle,
+            amount: sub.amount,
+            currency: sub.currency,
+            expiresAt: sub.expires_at,
+            provider: sub.provider,
+            licenseKey: sub.license_key
+          },
+          created_at: sub.created_at,
+          _from: "pro_subscriptions"
+        };
+      }
+    }
+
     const byKey = await fetch(
-      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>licenseKey=eq.${encodeURIComponent(keyClean)}&select=id,user_id,email_hash,status,metadata,created_at&order=created_at.desc&limit=5`,
+      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>licenseKey=eq.${encodeURIComponent(keyClean)}&select=id,user_id,email_hash,status,metadata,created_at,payment_id&order=created_at.desc&limit=5`,
       {
         headers: {
           apikey: key,
@@ -78,12 +151,11 @@ async function findEntitlementByLicenseOrEmail(licenseKey, email) {
   }
 
   if (emailNorm) {
-    // Prefer email_hash match, then metadata.email exact match (covers older rows)
     const byHash = await findActiveEntitlement(null, emailNorm);
     if (byHash) return byHash;
 
     const byMeta = await fetch(
-      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>email=eq.${encodeURIComponent(emailNorm)}&select=id,user_id,email_hash,status,metadata,created_at&order=created_at.desc&limit=5`,
+      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>email=eq.${encodeURIComponent(emailNorm)}&select=id,user_id,email_hash,status,metadata,created_at,payment_id&order=created_at.desc&limit=5`,
       {
         headers: {
           apikey: key,
@@ -312,6 +384,11 @@ function mountCeEntitlements(app) {
     return res.status(204).end();
   });
 
+  app.options("/api/user/grant-pro", (req, res) => {
+    cors(res);
+    return res.status(204).end();
+  });
+
   app.options("/api/user/plan-status", (req, res) => {
     cors(res);
     return res.status(204).end();
@@ -332,11 +409,74 @@ function mountCeEntitlements(app) {
       if (!supabaseOk) {
         return res.status(503).json({ ok: false, plan: "free", error: "Supabase not configured" });
       }
+
+      const sub = await findProSubscription(email);
+      if (sub) {
+        return res.json({ ok: true, ...summarizeSub(sub, email), source: "pro_subscriptions" });
+      }
+
       const row = await findEntitlementByLicenseOrEmail("", email);
       const summary = entitlementSummary(row, email);
-      return res.json({ ok: true, ...summary });
+      return res.json({ ok: true, ...summary, source: row ? "entitlement_events" : "none" });
     } catch (err) {
       return res.status(500).json({ ok: false, plan: "free", error: err.message });
+    }
+  });
+
+  /**
+   * POST /api/user/grant-pro
+   * Repair / manual grant after verified payment. Auth: Bearer CRON_SECRET
+   * Body: { email, cycle, amount?, currency?, provider?, paymentId?, expiresAt? }
+   */
+  app.post("/api/user/grant-pro", async (req, res) => {
+    cors(res);
+    const secret = process.env.CRON_SECRET;
+    const auth = req.headers.authorization || "";
+    const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
+    if (!secret || token !== secret) {
+      return res.status(401).json({ ok: false, error: "Unauthorized" });
+    }
+    try {
+      const email = String(req.body?.email || "").toLowerCase().trim();
+      const cycle = req.body?.cycle || "monthly";
+      if (!email.includes("@")) return res.status(400).json({ ok: false, error: "email required" });
+
+      let expiresAt = req.body?.expiresAt || null;
+      if (!expiresAt && cycle === "monthly") {
+        const d = new Date();
+        d.setUTCDate(d.getUTCDate() + 30);
+        expiresAt = d.toISOString();
+      } else if (!expiresAt && cycle === "yearly") {
+        const d = new Date();
+        d.setUTCDate(d.getUTCDate() + 365);
+        expiresAt = d.toISOString();
+      }
+
+      const license =
+        req.body?.licenseKey ||
+        `CE-PRO-${Math.random().toString(36).slice(2, 6)}-${Math.random().toString(36).slice(2, 6)}-${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+
+      const sub = await upsertProSubscription({
+        email,
+        cycle,
+        amount: req.body?.amount ?? null,
+        currency: req.body?.currency || "USD",
+        gst: req.body?.gst ?? null,
+        expiresAt: cycle === "lifetime" ? null : expiresAt,
+        provider: req.body?.provider || "manual",
+        paymentId: req.body?.paymentId || `GRANT_${Date.now()}`,
+        licenseKey: license,
+        test: !!req.body?.test
+      });
+
+      return res.json({
+        ok: Boolean(sub.ok),
+        ...summarizeSub(sub.row, email),
+        licenseKey: license,
+        error: sub.error || null
+      });
+    } catch (err) {
+      return res.status(500).json({ ok: false, error: err.message });
     }
   });
 

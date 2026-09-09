@@ -10,6 +10,7 @@ const {
   sendExpiredEmail,
   CHECKOUT
 } = require("./ceMail");
+const { expireDueSubscriptions } = require("./ceSubscriptions");
 
 function supabaseConfig() {
   const url = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
@@ -33,6 +34,14 @@ async function runLifecycle() {
   const { url, key, ok } = supabaseConfig();
   if (!ok) return { ok: false, error: "Supabase not configured" };
 
+  // Expire pro_subscriptions past expires_at → Free
+  const subExpire = await expireDueSubscriptions();
+  for (const row of subExpire.rows || []) {
+    if (row.email) {
+      await sendExpiredEmail({ email: row.email, expiresAt: row.expires_at });
+    }
+  }
+
   const now = Date.now();
   const listRes = await fetch(
     `${url}/rest/v1/entitlement_events?status=eq.active&select=id,user_id,payment_id,metadata&order=created_at.desc&limit=500`,
@@ -44,10 +53,18 @@ async function runLifecycle() {
       }
     }
   );
-  if (!listRes.ok) return { ok: false, error: "list_failed", status: listRes.status };
+  if (!listRes.ok) {
+    return {
+      ok: true,
+      expired: subExpire.expired || 0,
+      reminded: 0,
+      warning: "entitlement_events list failed",
+      checkout: CHECKOUT
+    };
+  }
 
   const rows = await listRes.json().catch(() => []);
-  let expired = 0;
+  let expired = subExpire.expired || 0;
   let reminded = 0;
 
   for (const row of rows || []) {
