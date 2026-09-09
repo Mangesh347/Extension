@@ -8,6 +8,7 @@
 
 const crypto = require("crypto");
 const path = require("path");
+const { sendPaymentReceiptEmail } = require("./ceMail");
 
 const GST_RATE = 0.18;
 const PLANS = {
@@ -327,6 +328,30 @@ async function recordEntitlement({ email, paymentId, provider, cycle, amount, cu
   }
 }
 
+/** After payment verified: write Supabase + email receipt. Never blocks unlock on mail failure. */
+async function fulfillProPurchase(args) {
+  const recorded = await recordEntitlement(args);
+  let mail = { ok: false };
+  try {
+    mail = await sendPaymentReceiptEmail({
+      email: args.email,
+      cycle: args.cycle,
+      expiresAt: args.expires,
+      licenseKey: args.license,
+      amount: args.amount,
+      currency: args.currency,
+      provider: args.provider,
+      paymentId: args.paymentId,
+      gst: args.gst,
+      subtotal: args.subtotal,
+      test: args.test
+    });
+  } catch (err) {
+    console.warn("[CE Pay] receipt email:", err.message);
+  }
+  return { recorded, mail };
+}
+
 function mountCePayments(app) {
   app.get("/checkout", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "checkout.html"));
@@ -415,7 +440,7 @@ function mountCePayments(app) {
       const isSim = String(order_id).startsWith("SIM_") || req.body?.simulate === true;
 
       if (isSim || !clientId || !clientSecret) {
-        await recordEntitlement({
+        const fulfilled = await fulfillProPurchase({
           email: billingEmail,
           paymentId: order_id,
           provider: "paypal",
@@ -435,6 +460,7 @@ function mountCePayments(app) {
           cycle: quote.cycle,
           expiresAt: exp,
           payment_mode: creds.label,
+          receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
           redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
         });
       }
@@ -455,7 +481,7 @@ function mountCePayments(app) {
         return res.status(402).json({ error: "Payment not completed", details: captureData });
       }
       const payerEmail = billingEmail || captureData.payer?.email_address?.toLowerCase?.() || "";
-      await recordEntitlement({
+      const fulfilled = await fulfillProPurchase({
         email: payerEmail,
         paymentId: captureData.id || order_id,
         provider: "paypal",
@@ -475,6 +501,7 @@ function mountCePayments(app) {
         cycle: quote.cycle,
         expiresAt: exp,
         payment_mode: creds.label,
+        receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(payerEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {
@@ -576,7 +603,7 @@ function mountCePayments(app) {
       const exp = expiresAt(cycle);
       const key = licenseKey();
       const billingEmail = String(email || "").toLowerCase().trim();
-      await recordEntitlement({
+      const fulfilled = await fulfillProPurchase({
         email: billingEmail,
         paymentId: razorpay_payment_id,
         provider: "razorpay",
@@ -596,6 +623,7 @@ function mountCePayments(app) {
         cycle: quote.cycle,
         expiresAt: exp,
         payment_mode: creds.label,
+        receiptEmailed: Boolean(fulfilled.mail?.ok && !fulfilled.mail?.skipped),
         redirect: `https://claude.ai/?ce_pro=1&email=${encodeURIComponent(billingEmail)}&key=${encodeURIComponent(key)}`
       });
     } catch (err) {

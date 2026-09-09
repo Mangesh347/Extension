@@ -212,23 +212,27 @@
       const modeNote = data.payment_mode === "test"
         ? `<p class="ck-success-test">Test payment — open Claude with this same Gmail to unlock Pro.</p>`
         : "";
+      const mailNote = data.receiptEmailed
+        ? `<p class="ck-success-meta" style="color:#027a48">Receipt emailed to <strong>${emailSafe}</strong>.</p>`
+        : (email ? `<p class="ck-success-meta">A receipt is being sent to <strong>${emailSafe}</strong>.</p>` : "");
 
       document.getElementById("checkoutShell").innerHTML = `
         <div class="ck-right ck-success-wrap">
           <div class="ck-success">
             <div class="ck-success-check" aria-hidden="true">✓</div>
-            <p class="ck-success-kicker">Payment successful</p>
+            <p class="ck-success-kicker">Payment verified</p>
             <h1>Open Claude — Pro unlocks automatically</h1>
             <p class="ck-success-lead">
               Sign in to Claude with <strong>${emailSafe}</strong> (the Gmail you paid with).
-              Claude Enhancer turns on Pro by itself — no license key to enter.
+              Claude Enhancer switches to the Pro UI automatically — no license key to enter.
             </p>
             <ol class="ck-success-steps">
               <li>Tap <strong>Open Claude Enhancer Pro</strong></li>
               <li>Use <strong>${emailSafe}</strong> on Claude if asked</li>
-              <li>Pro activates automatically</li>
+              <li>Pro mode UI activates automatically</li>
             </ol>
             ${modeNote}
+            ${mailNote}
             <a class="ck-btn ck-btn-dark ck-success-cta" href="${redirect}" id="openProCta">Open Claude Enhancer Pro</a>
             <p class="ck-success-meta">${expiresLine}</p>
             <p class="ck-success-note">Redirecting in a few seconds… · Up to 2 Chrome profiles</p>
