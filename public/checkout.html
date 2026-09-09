@@ -19,7 +19,7 @@
       <p class="ck-kicker">Upgrade to Claude Enhancer Pro</p>
       <p class="ck-price-hero" id="heroPrice">$47.20 per year</p>
 
-      <div class="ck-test on ck-trust" id="testBanner">Secure checkout · Pro unlocks on your billing email</div>
+      <div class="ck-test on ck-trust" id="testBanner">Upgrade to Pro — secure live checkout. Pro unlocks on your billing email.</div>
 
       <div class="ck-currency" role="group" aria-label="Currency">
         <button type="button" class="active" data-currency="USD" id="curUSD">USD</button>
@@ -108,6 +108,7 @@
       <p class="ck-legal">
         By confirming, you authorize Fenwick Labs (Mangesh Madhavrao Lokade, sole proprietor) to charge this payment method for the selected plan including GST.
         Monthly/yearly Pro ends on the stated date unless renewed. Lifetime is one-time.
+        Claude Enhancer is an unofficial extension and is not affiliated with Anthropic, PBC.
         <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> · <a href="refund.html">Refunds</a>
       </p>
       <div class="ck-powered">
@@ -130,12 +131,11 @@
     let INR_RATE = 95.12;
     let cycle = "yearly";
     let currency = "USD";
-    let testMode = true; // default safe until /api/config says live keys exist
+    // Live checkout only
 
     const params = new URLSearchParams(location.search);
     if (["monthly", "yearly", "lifetime"].includes(params.get("cycle"))) cycle = params.get("cycle");
     if ((params.get("email") || "").includes("@")) document.getElementById("buyerEmail").value = params.get("email");
-    if (params.get("test") === "1" || params.get("test") === "true") testMode = true;
 
     function money(n, cur) {
       return new Intl.NumberFormat(cur === "INR" ? "en-IN" : "en-US", {
@@ -209,9 +209,7 @@
       const expiresLine = data.expiresAt
         ? `Pro active until <strong>${escapeHtml(new Date(data.expiresAt).toLocaleDateString())}</strong>`
         : `Lifetime Pro on this email`;
-      const modeNote = data.payment_mode === "test"
-        ? `<p class="ck-success-test">Practice payment complete — open Claude with this same email to try Pro.</p>`
-        : "";
+      const modeNote = "";
       const mailNote = data.receiptEmailed
         ? `<p class="ck-success-meta" style="color:#027a48">Receipt emailed to <strong>${emailSafe}</strong>.</p>`
         : (email ? `<p class="ck-success-meta">A receipt is being sent to <strong>${emailSafe}</strong>.</p>` : "");
@@ -226,15 +224,15 @@
           <div class="ck-success">
             <div class="ck-success-check" aria-hidden="true">✓</div>
             <p class="ck-success-kicker">Payment verified</p>
-            <h1>Open Claude — Pro unlocks automatically</h1>
+            <h1>Open Claude — Pro unlocks after sign-in</h1>
             <p class="ck-success-lead">
-              Sign in to Claude with <strong>${emailSafe}</strong> (the Gmail you paid with).
-              Claude Enhancer switches to the Pro UI automatically — no license key to enter.
+              Sign in to the extension with <strong>${emailSafe}</strong> (the Google email you paid with).
+              Claude Enhancer unlocks Pro for that account — no license key to paste.
             </p>
             <ol class="ck-success-steps">
               <li>Tap <strong>Open Claude Enhancer Pro</strong></li>
-              <li>Use <strong>${emailSafe}</strong> on Claude if asked</li>
-              <li>Pro mode UI activates automatically</li>
+              <li>Sign in with <strong>${emailSafe}</strong> if asked</li>
+              <li>Pro unlocks on the verified login email</li>
             </ol>
             ${modeNote}
             ${mailNote}
@@ -254,27 +252,18 @@
       }, 2500);
     }
 
-    async function detectMode() {
+    async function loadConfig() {
       try {
         const res = await fetch("/api/config");
         const data = await res.json();
-        testMode = data.payment_test_mode !== false;
         if (Number(data.inr_usd_rate) > 0) INR_RATE = Number(data.inr_usd_rate);
         const banner = document.getElementById("testBanner");
         if (banner) {
-          banner.classList.add("on");
-          banner.classList.remove("ck-trust", "ck-practice");
-          if (testMode) {
-            banner.classList.add("ck-practice");
-            banner.textContent = "Practice checkout — no real charges. Upgrade to Pro when you are ready.";
-          } else {
-            banner.classList.add("ck-trust");
-            banner.textContent = "Upgrade to Pro — secure checkout. Pro unlocks on your billing email.";
-          }
+          banner.classList.add("on", "ck-trust");
+          banner.classList.remove("ck-practice");
+          banner.textContent = "Upgrade to Pro — secure live checkout. Pro unlocks on your billing email.";
         }
-      } catch (_) {
-        testMode = true;
-      }
+      } catch (_) {}
       render();
     }
 
@@ -283,7 +272,7 @@
       if (!e) return;
       const btn = document.getElementById("payPaypal");
       btn.disabled = true;
-      setStatus(testMode ? "Starting practice PayPal checkout…" : "Creating PayPal order…");
+      setStatus("Creating PayPal order…");
       try {
         const res = await fetch("/api/paypal/create-order", {
           method: "POST",
@@ -302,7 +291,7 @@
         const cap = await fetch("/api/paypal/capture-order", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ order_id: data.order_id || ("SIM_PP_" + Date.now()), email: e, cycle })
+          body: JSON.stringify({ order_id: data.order_id, email: e, cycle })
         });
         const result = await cap.json();
         if (!cap.ok) throw new Error(result.error || "Capture failed");
@@ -319,7 +308,7 @@
       if (!e) return;
       currency = "INR";
       render();
-      setStatus(testMode ? "Opening practice card checkout…" : "Opening secure card checkout…");
+      setStatus("Opening secure card checkout…");
       try {
         const res = await fetch("/api/razorpay/create-order", {
           method: "POST",
@@ -329,8 +318,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Order failed");
         const key = String(data.key_id || "");
-        const okKey = testMode ? key.startsWith("rzp_test_") : key.startsWith("rzp_live_");
-        if (!okKey) {
+        if (!key.startsWith("rzp_live_")) {
           throw new Error(
             "Card checkout is temporarily unavailable. Try PayPal or contact support."
           );
@@ -341,7 +329,7 @@
           amount: data.amount,
           currency: data.currency || "INR",
           name: "Claude Enhancer Pro",
-          description: `Pro ${cycle}${testMode ? " (practice)" : ""}`,
+          description: `Pro ${cycle}`,
           order_id: data.order_id,
           prefill: { email: e },
           theme: { color: "#111111" },
@@ -397,7 +385,7 @@
     document.getElementById("payRazorpay").addEventListener("click", payRazorpayCard);
     document.getElementById("payCard").addEventListener("click", payRazorpayCard);
 
-    detectMode();
+    loadConfig();
   </script>
 </body>
 </html>
