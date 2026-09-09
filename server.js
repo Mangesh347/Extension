@@ -115,6 +115,7 @@ app.get('/api/config', (req, res) => {
       : '',
     providers: ['paypal', 'razorpay'],
     gst_rate: 0.18,
+    inr_usd_rate: Number(process.env.INR_USD_RATE || 95.12),
     plans: {
       monthly: { priceUSD: 4 },
       yearly: { priceUSD: 40 },

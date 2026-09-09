@@ -127,7 +127,7 @@
     });
     const GST = 0.18;
     const USD = { monthly: 4, yearly: 40, lifetime: 80 };
-    const INR_RATE = 83.5;
+    let INR_RATE = 95.12;
     let cycle = "yearly";
     let currency = "USD";
     let testMode = true; // default safe until /api/config says live keys exist
@@ -259,19 +259,20 @@
         const res = await fetch("/api/config");
         const data = await res.json();
         testMode = data.payment_test_mode !== false;
+        if (Number(data.inr_usd_rate) > 0) INR_RATE = Number(data.inr_usd_rate);
         const banner = document.getElementById("testBanner");
         if (banner) {
           banner.classList.add("on");
-        if (testMode) {
+          if (testMode) {
             const pp = data.paypal_ready ? "PayPal sandbox OK" : "PayPal sandbox keys missing";
             const rz = data.razorpay_using_test_keys
               ? "Razorpay TEST OK (rzp_test_)"
               : data.razorpay_using_live_keys
                 ? "BLOCKED: live Razorpay key — redeploy + set RAZORPAY_TEST_*"
                 : "Set RAZORPAY_TEST_KEY_ID + SECRET on Vercel";
-            banner.textContent = `TEST MODE LOCKED · $4/$40/$80 · ${pp} · ${rz}`;
+            banner.textContent = `TEST MODE · ₹${INR_RATE}/$ · $4/$40/$80 · ${pp} · ${rz}`;
           } else {
-            banner.textContent = "LIVE MODE — real charges on PayPal and Razorpay.";
+            banner.textContent = `LIVE MODE — real charges · ₹${INR_RATE} per $1 · PayPal + Razorpay`;
           }
         }
       } catch (_) {

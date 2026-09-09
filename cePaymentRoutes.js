@@ -17,7 +17,7 @@ const PLANS = {
   yearly: { priceUSD: 40, days: 365, desc: "Claude Enhancer Pro — Yearly" },
   lifetime: { priceUSD: 80, days: null, desc: "Claude Enhancer Pro — Lifetime" }
 };
-const INR_RATE = Number(process.env.INR_USD_RATE || 83.5);
+const INR_RATE = Number(process.env.INR_USD_RATE || 95.12);
 
 function round2(n) {
   return Math.round(n * 100) / 100;
