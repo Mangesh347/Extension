@@ -211,8 +211,11 @@ async function findActiveEntitlement(userId, email) {
   if (!ok || !email) return null;
 
   const emailHash = hashEmail(email);
+  const filter = userId
+    ? `or=(user_id.eq.${encodeURIComponent(userId)},email_hash.eq.${encodeURIComponent(emailHash)})`
+    : `email_hash=eq.${encodeURIComponent(emailHash)}`;
   const res = await fetch(
-    `${url}/rest/v1/entitlement_events?or=(user_id.eq.${encodeURIComponent(userId || "")},email_hash.eq.${encodeURIComponent(emailHash)})&status=eq.active&select=id,metadata,created_at&order=created_at.desc&limit=5`,
+    `${url}/rest/v1/entitlement_events?${filter}&status=eq.active&select=id,user_id,email_hash,payment_id,status,metadata,created_at&order=created_at.desc&limit=5`,
     {
       headers: {
         apikey: key,
