@@ -78,9 +78,69 @@ async function findEntitlementByLicenseOrEmail(licenseKey, email) {
   }
 
   if (emailNorm) {
-    return findActiveEntitlement(null, emailNorm);
+    // Prefer email_hash match, then metadata.email exact match (covers older rows)
+    const byHash = await findActiveEntitlement(null, emailNorm);
+    if (byHash) return byHash;
+
+    const byMeta = await fetch(
+      `${url}/rest/v1/entitlement_events?status=eq.active&metadata->>email=eq.${encodeURIComponent(emailNorm)}&select=id,user_id,email_hash,status,metadata,created_at&order=created_at.desc&limit=5`,
+      {
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          Accept: "application/json"
+        }
+      }
+    );
+    if (byMeta.ok) {
+      const rows = await byMeta.json().catch(() => []);
+      for (const row of rows || []) {
+        if (isActiveEntitlementRow(row)) return row;
+      }
+    }
   }
   return null;
+}
+
+function entitlementSummary(row, emailNorm) {
+  if (!row) {
+    return {
+      plan: "free",
+      paid: false,
+      email: emailNorm || null,
+      cycle: null,
+      amount: null,
+      currency: null,
+      expiresAt: null,
+      daysLeft: null,
+      provider: null,
+      paymentId: null,
+      lifetime: false
+    };
+  }
+  const meta = row.metadata || {};
+  const expiresAt = meta.expiresAt || null;
+  const lifetime = !expiresAt;
+  let daysLeft = null;
+  if (expiresAt) {
+    daysLeft = Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+  }
+  return {
+    plan: "pro",
+    paid: true,
+    email: maskEmail(meta.email || emailNorm),
+    cycle: meta.cycle || null,
+    amount: meta.amount != null ? meta.amount : null,
+    currency: meta.currency || null,
+    gst: meta.gst != null ? meta.gst : null,
+    expiresAt,
+    daysLeft: lifetime ? null : daysLeft,
+    lifetime,
+    provider: meta.provider || null,
+    paymentId: row.payment_id || null,
+    licenseKey: meta.licenseKey || null,
+    activatedAt: meta.activatedAt || row.created_at || null
+  };
 }
 
 async function upgradeProfileByEmail(email, cycle) {
@@ -249,6 +309,34 @@ function mountCeEntitlements(app) {
     return res.status(204).end();
   });
 
+  app.options("/api/user/plan-status", (req, res) => {
+    cors(res);
+    return res.status(204).end();
+  });
+
+  /**
+   * GET /api/user/plan-status?email=
+   * Deep verify: has this Gmail paid? cycle, amount, expiry → free or pro.
+   */
+  app.get("/api/user/plan-status", async (req, res) => {
+    cors(res);
+    try {
+      const email = String(req.query.email || "").toLowerCase().trim();
+      if (!email.includes("@")) {
+        return res.status(400).json({ ok: false, plan: "free", error: "email required" });
+      }
+      const { ok: supabaseOk } = supabaseConfig();
+      if (!supabaseOk) {
+        return res.status(503).json({ ok: false, plan: "free", error: "Supabase not configured" });
+      }
+      const row = await findEntitlementByLicenseOrEmail("", email);
+      const summary = entitlementSummary(row, email);
+      return res.json({ ok: true, ...summary });
+    } catch (err) {
+      return res.status(500).json({ ok: false, plan: "free", error: err.message });
+    }
+  });
+
   /**
    * POST /api/user/activate-license
    * Verify payment in Supabase by license key + billing email, then issue Pro token.
@@ -323,6 +411,7 @@ function mountCeEntitlements(app) {
       }
 
       const entitlementToken = issueEntitlementToken(userId, "pro", deviceId, expiresAt);
+      const summary = entitlementSummary(entitlement, billingEmail);
       return res.status(200).json({
         ok: true,
         entitlementToken,
@@ -330,12 +419,60 @@ function mountCeEntitlements(app) {
         email: billingEmail ? maskEmail(billingEmail) : null,
         expiresAt,
         cycle: entitlement.metadata?.cycle || null,
+        amount: entitlement.metadata?.amount ?? null,
+        currency: entitlement.metadata?.currency || null,
+        provider: entitlement.metadata?.provider || null,
+        daysLeft: summary.daysLeft,
+        lifetime: summary.lifetime,
         licenseKey: entitlement.metadata?.licenseKey || licenseKey || null,
         expiresIn: 4 * 60 * 60 * 1000
       });
     } catch (err) {
       console.error("[CE Activate]", err);
       return res.status(500).json({ ok: false, plan: "free", error: err.message || "Activation failed" });
+    }
+  });
+
+  app.options("/api/user/pro-welcome", (req, res) => {
+    cors(res);
+    return res.status(204).end();
+  });
+
+  /**
+   * POST /api/user/pro-welcome — once when extension first shows Pro for this email
+   */
+  app.post("/api/user/pro-welcome", async (req, res) => {
+    cors(res);
+    try {
+      const email = String(req.body?.email || "").toLowerCase().trim();
+      if (!email.includes("@")) return res.status(400).json({ ok: false, error: "email required" });
+      const row = await findEntitlementByLicenseOrEmail("", email);
+      if (!row || !isActiveEntitlementRow(row)) {
+        return res.json({ ok: false, plan: "free", sent: false });
+      }
+      const meta = row.metadata || {};
+      if (meta.welcomeOnClaudeSent) {
+        return res.json({ ok: true, plan: "pro", sent: false, already: true });
+      }
+      const { sendWelcomeOnClaudeEmail } = require("./ceMail");
+      await sendWelcomeOnClaudeEmail({
+        email,
+        cycle: meta.cycle,
+        expiresAt: meta.expiresAt
+      });
+      const { url, key } = supabaseConfig();
+      await fetch(`${url}/rest/v1/entitlement_events?id=eq.${encodeURIComponent(row.id)}`, {
+        method: "PATCH",
+        headers: {
+          apikey: key,
+          Authorization: `Bearer ${key}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ metadata: { ...meta, welcomeOnClaudeSent: true } })
+      });
+      return res.json({ ok: true, plan: "pro", sent: true });
+    } catch (err) {
+      return res.status(500).json({ ok: false, error: err.message });
     }
   });
 

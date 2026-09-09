@@ -6,6 +6,7 @@ const { verifyPaddleSignature, processWebhookEvent, isPaddleIpAllowed } = requir
 const { createCustomerPortalSession } = require('./portalService');
 const { mountCePayments } = require('./cePaymentRoutes');
 const { mountCeEntitlements } = require('./ceEntitlementRoutes');
+const { mountCeLifecycle } = require('./ceLifecycle');
 
 dotenv.config();
 
@@ -85,6 +86,7 @@ app.use(express.urlencoded({ extended: true }));
 mountCePayments(app);
 // Email-bound Pro token / access (must be before catch-all *)
 mountCeEntitlements(app);
+mountCeLifecycle(app);
 
 // ---------------- 2. CLIENT CONFIG ENDPOINT ----------------
 // Safe public config (Client Token & Price IDs only — NO API Keys or Signing Secrets)

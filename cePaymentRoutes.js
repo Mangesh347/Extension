@@ -8,7 +8,7 @@
 
 const crypto = require("crypto");
 const path = require("path");
-const { sendPaymentReceiptEmail } = require("./ceMail");
+const { sendPaymentReceiptEmail, sendLifetimeThanksEmail } = require("./ceMail");
 
 const GST_RATE = 0.18;
 const PLANS = {
@@ -333,19 +333,30 @@ async function fulfillProPurchase(args) {
   const recorded = await recordEntitlement(args);
   let mail = { ok: false };
   try {
-    mail = await sendPaymentReceiptEmail({
-      email: args.email,
-      cycle: args.cycle,
-      expiresAt: args.expires,
-      licenseKey: args.license,
-      amount: args.amount,
-      currency: args.currency,
-      provider: args.provider,
-      paymentId: args.paymentId,
-      gst: args.gst,
-      subtotal: args.subtotal,
-      test: args.test
-    });
+    if (args.cycle === "lifetime") {
+      mail = await sendLifetimeThanksEmail({
+        email: args.email,
+        amount: args.amount,
+        currency: args.currency
+      });
+    } else {
+      mail = await sendPaymentReceiptEmail({
+        email: args.email,
+        cycle: args.cycle,
+        expiresAt: args.expires,
+        licenseKey: args.license,
+        amount: args.amount,
+        currency: args.currency,
+        provider: args.provider,
+        paymentId: args.paymentId,
+        gst: args.gst,
+        test: args.test
+      });
+    }
+    // If this email already had a prior entitlement, also send "renewed" (best-effort)
+    if (args.cycle !== "lifetime" && recorded?.ok) {
+      /* receipt already covers first purchase; skip duplicate renewed */
+    }
   } catch (err) {
     console.warn("[CE Pay] receipt email:", err.message);
   }
